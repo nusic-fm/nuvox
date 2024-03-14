@@ -1,0 +1,7 @@
+:root {
+  color: rgba(255, 255, 255, 0.87);
+  background-color: rgb(20, 20, 20);
+}
+* {
+  box-sizing: border-box;
+}

@@ -1,0 +1,104 @@
+#root {
+}
+.myBubbleUI {
+  width: 100%;
+  max-width: 100vw;
+  height: 500px;
+  border-radius: 50px;
+  background-color: transparent;
+}
+.childComponent {
+  width: 100%; /* width expands to fit bubble */
+  height: 100%; /* width expands to fit bubble */
+  border-radius: 50%; /* rounded border forms a circle */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.loading-bubble {
+  animation: zoomEffect 2s linear 0s infinite;
+}
+
+@keyframes zoomEffect {
+  0% {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  50% {
+    width: 140px !important;
+    height: 140px !important;
+  }
+
+  100% {
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
+.loader-css div {
+  height: 100%;
+  width: 100%;
+  border-radius: 100%;
+  box-sizing: border-box;
+  border-bottom: 0.2em solid transparent;
+  border-top: 0.2em solid transparent;
+  border-left: 0.2em solid;
+  border-right: 0.2em solid;
+  border-left-color: inherit;
+  border-right-color: inherit;
+  animation: spin 4s infinite linear;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+div::part(region-handle) {
+  border-color: #fff;
+  border-width: 0px;
+  height: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  border-radius: 50px;
+  background-color: #dddddd;
+}
+div::part(region-handle-left) {
+  left: -5.5px;
+}
+div::part(region-handle-right) {
+  right: -5.5px;
+}
+div::part(region) {
+  border: 1px solid #f6f6f6;
+  border-radius: 20px;
+}
+div ::part(cursor) {
+  height: 98%;
+  /* top: 28px; */
+  border-radius: 4px;
+  border: 1px solid #fff;
+}
+/* div::part(region) {
+  transition: all 0.8s ease-in-out;
+} */
+/* @keyframes waves {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+} */
+div::part(marker) {
+  height: 10px !important;
+}

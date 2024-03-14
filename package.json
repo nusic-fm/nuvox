@@ -1,0 +1,53 @@
+{
+  "name": "nusic-ai-voice-covers",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "author": {
+    "name": "Logesh",
+    "email": "logesh.r24@gmail.com"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@gradio/client": "^0.13.0",
+    "@huggingface/hub": "^0.14.2",
+    "@mui/icons-material": "^5.15.4",
+    "@mui/lab": "^5.0.0-alpha.160",
+    "@mui/material": "^5.15.4",
+    "axios": "^1.6.5",
+    "colormap": "^2.3.2",
+    "fft.js": "^4.0.4",
+    "firebase": "^10.8.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-firebase-hooks": "^5.1.1",
+    "react-router-dom": "^6.22.0",
+    "waves-audio": "^0.5.2",
+    "waves-loaders": "^0.1.6",
+    "waves-ui": "github:wavesjs/ui",
+    "wavesurfer.js": "^7.6.4",
+    "webfontloader": "^1.6.28"
+  },
+  "devDependencies": {
+    "@types/colormap": "^2.3.4",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@types/webfontloader": "^1.6.38",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.55.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.8"
+  }
+}
