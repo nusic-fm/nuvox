@@ -61,7 +61,7 @@ const VoiceModelSelection = ({
     <Stack
       mb={5}
       gap={2}
-      mx={{ lg: 25 }}
+      mx={{ md: 15, lg: 20 }}
       // sx={{ bgcolor: "rgb(20, 20, 20)" }}
       // p={5}
       // borderRadius="16px"
@@ -110,11 +110,13 @@ const VoiceModelSelection = ({
               </IconButton>
             ),
           }}
+          sx={{flexBasis: '65%'}}
         />
         <TextField
+          sx={{flexBasis: '35%'}}
           id="modelname"
           label="Model Name"
-          // sx={{ width: 500 }}
+          // sx={{ width: 400 }}
           value={voiceModelProps.name}
           onChange={(e) => {
             setVoiceModelProps({

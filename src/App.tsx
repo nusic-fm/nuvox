@@ -310,11 +310,11 @@ const App = ({}: Props) => {
           headers: { Authorization: `Bearer ${hfToken}` },
         });
         const filePath = res.data[0];
-        setVoiceModelProps({
-          name: voiceModelProps.name || acceptedFiles[0].name.split(".")[0],
+        setVoiceModelProps((props) => ({
+          name: props.name || acceptedFiles[0].name.split(".")[0],
           uploadFileUrl: filePath,
           url: "",
-        });
+        }));
         setUploadedZipFile(zip);
         setSnackbarMessage("Successfully Uploaded!");
       } catch (e) {
@@ -866,7 +866,7 @@ const App = ({}: Props) => {
               }}
             />
           </Box>
-          <Box flexBasis={{ xs: "100%", md: "30%" }}>
+          <Box flexBasis={{ xs: "100%", md: "38%" }}>
             <Uploader
               onDrop={onDropMusicUpload}
               melodyFile={uploadedFile}
@@ -892,6 +892,9 @@ const App = ({}: Props) => {
                 "linear-gradient(90deg, rgba(84,50,255,1) 0%, rgba(237,50,255,1) 100%)",
               color: "white",
               px: 2.5,
+              '.MuiLoadingButton-loadingIndicator': {
+                color: '#fff'
+              }
             }}
             size="large"
             startIcon={<AutoAwesomeRoundedIcon />}

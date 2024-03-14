@@ -60,7 +60,7 @@ const Uploader = ({ onDrop, initializeTone, melodyFile, vid }: Props) => {
           display="flex"
           alignItems={"center"}
           width="100%"
-          pl={"14px"}
+          p={2}
           gap={2}
         >
           <IconButton
