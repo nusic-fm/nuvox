@@ -21,7 +21,7 @@ export const useHfClient = (inputAccessToken: string, spaceId: string, onLoading
           window.localStorage.setItem("HF_AT", inputAccessToken);
           
           setHfToken(inputAccessToken);
-          setHfUserInfo({name: _userName, id: _userId})
+          setHfUserInfo({name: _userName === 'alexnusic' ? 'nusic' : _userName , id: _userId})
           // setUserName(_userName.endsWith("nusic") ? "nusic" : _userName); // user.name "nusic"
         } catch (e) {
             onErrorCallback("Invalid Access Token");

@@ -18,13 +18,15 @@ type Props = {
   voiceModelProps: {
     url: string;
     name: string;
-    uploadFileUrl: string;
+    uploadFilePath: string;
+    fullUploadedUrl: string;
   };
   setVoiceModelProps: React.Dispatch<
     React.SetStateAction<{
       url: string;
       name: string;
-      uploadFileUrl: string;
+      uploadFilePath: string;
+      fullUploadedUrl: string;
     }>
   >;
   userId: string;
@@ -77,18 +79,19 @@ const VoiceModelSelection = ({
           id="modelurl"
           fullWidth
           label="Model url or Upload zip"
-          value={voiceModelProps.url || voiceModelProps.uploadFileUrl}
+          value={voiceModelProps.url || voiceModelProps.fullUploadedUrl}
           onChange={(e) => {
             setVoiceModelProps({
               ...voiceModelProps,
               url: e.target.value,
-              uploadFileUrl: "",
+              uploadFilePath: "",
+              fullUploadedUrl: ""
             });
           }}
           size="small"
           placeholder="HuggingFace/Pixeldrain urls"
           disabled={
-            chipSelected || !!voiceModelProps.uploadFileUrl || isLoading
+            chipSelected || !!voiceModelProps.uploadFilePath || isLoading
           }
           InputProps={{
             endAdornment: (
@@ -148,14 +151,16 @@ const VoiceModelSelection = ({
               }
               onClick={() => {
                 if (obj.model_url === voiceModelProps.url) {
-                  setVoiceModelProps({ url: "", name: "", uploadFileUrl: "" });
+                  setVoiceModelProps({ url: "", name: "", uploadFilePath: "",
+                  fullUploadedUrl: "" });
                   setChipSelected(false);
                 } else {
                   setChipSelected(true);
                   setVoiceModelProps({
                     url: obj.model_url,
                     name: obj.model_name,
-                    uploadFileUrl: "",
+                    uploadFilePath: "",
+                    fullUploadedUrl: ""
                   });
                 }
               }}

@@ -1,28 +1,14 @@
 import {
   TextField,
   Button,
-  // CircularProgress,
   Stack,
   IconButton,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  // Accordion,
-  // AccordionDetails,
-  // AccordionSummary,
   Snackbar,
   Chip,
-  FormControlLabel,
-  Switch,
   Alert,
   LinearProgress,
-  Tab,
-  Tabs,
+  Badge,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useRef, useState } from "react";
@@ -32,9 +18,6 @@ import SettingsRounded from "@mui/icons-material/SettingsRounded";
 import axios from "axios";
 // import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { client } from "@gradio/client";
-import RemoveRedEyeRoundedIcon from "@mui/icons-material/RemoveRedEyeRounded";
-import VisibilityOffRoundedIcon from "@mui/icons-material/VisibilityOffRounded";
-import RefreshRounded from "@mui/icons-material/RefreshRounded";
 import { useWavesurfer } from "./hooks/useWavesurfer";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import PlayRounded from "@mui/icons-material/PlayArrowRounded";
@@ -49,24 +32,12 @@ import { createErrorDoc } from "./services/db/errors.service";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import { getSpaceId } from "./helpers/hf";
 import { useHfClient } from "./hooks/useHf";
+import Settings from "./components/Settings";
 
 type Props = {};
 
-const GPU_SPACE_ID = "nusic-voice-cover";
-const CPU_SPACE_ID = "nusic-voice-cover-cpu";
-
-const machineTypes = {
-  gpu: {
-    "t4-small": "T4 small - $0.60/hour",
-    "t4-medium": "T4 medium - $0.90/hour",
-    "a10g-small": "A10G small - $1.05/hour",
-    "a10g-large": "A10G large - $3.15/hour",
-  },
-  cpu: {
-    "cpu-basic": "CPU basic - Free",
-    "cpu-upgrade": "CPU upgrade - $0.03/hour",
-  },
-};
+export const GPU_SPACE_ID = "nusic-voice-cover";
+export const CPU_SPACE_ID = "nusic-voice-cover-cpu";
 
 export const voiceCoverLinks = [
   "eminem-new-era",
@@ -78,6 +49,8 @@ export const voiceCoverLinks = [
   "mcdoor",
 ];
 
+export type HardwareInfo = { machineType: string; sleepTime: number };
+
 const App = ({}: Props) => {
   const [showAccountSetup, setShowAccountSetup] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -88,15 +61,12 @@ const App = ({}: Props) => {
   const [gpuSpaceAvailable, setGpuSpaceAvailable] = useState(false);
   const [cpuSpaceAvailable, setCpuSpaceAvailable] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(false);
-  const [selectedConfigTabIdx, setSelectedConfigTabIdx] = useState(() => {
-    const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
-    return idx;
-  });
+  const [settingsAlert, setSettingsAlert] = useState("");
   const [spaceId, setSpaceId] = useState(() => {
     const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
     return idx === 0 ? GPU_SPACE_ID : CPU_SPACE_ID;
   });
-  const [voiceModelChoices, setVoiceModelChoices] = useState<string[][]>();
+  const [voiceModelChoices, setVoiceModelChoices] = useState<string[][]>(); // TODO
   const [generateAfterRestart, setGenerateAfterRestart] = useState(false);
 
   const [uploadedFile, setUploadedFile] = useState<File>();
@@ -113,7 +83,6 @@ const App = ({}: Props) => {
   const [isGenerating, setIsGenerating] = useState(false);
   // const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   // const [selectedArtist, setSelectedArtist] = useState("");
-  const [machineType, setMachineType] = useState("");
   const [coverUrl, setCoverUrl] = useState(
     ""
     // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/arr.wav?alt=media&token=141f6e3c-3ef7-48ec-bd37-3df48783570b"
@@ -122,11 +91,13 @@ const App = ({}: Props) => {
   const [voiceModelProps, setVoiceModelProps] = useState<{
     url: string;
     name: string;
-    uploadFileUrl: string;
+    uploadFilePath: string;
+    fullUploadedUrl: string;
   }>({
     url: "",
     name: "",
-    uploadFileUrl: "",
+    uploadFilePath: "",
+    fullUploadedUrl: "",
   });
   const [uploadedZipFile, setUploadedZipFile] = useState<File>();
   // const [eta, setEta] = useState(0);
@@ -136,13 +107,24 @@ const App = ({}: Props) => {
     { msg: string; alert: "success" | "error" }[]
   >([]);
   const [generationProgress, setGenerationProgress] = useState(0);
-  const [showAt, setShowAt] = useState(false);
   const [isUploadingZip, setIsUploadingZip] = useState(false);
-  const [hfStatus, setHfStatus] = useState<string>();
+  const [hfStatus, setHfStatus] = useState<string>("");
+  const [hfHardwareInfo, setHfHardwareInfo] = useState<HardwareInfo>({
+    machineType: "",
+    sleepTime: 0,
+  });
   const [txHash, setTxHash] = useState<string>();
   const [hashedAudioUrl, setHashedAudioUrl] = useState<string>();
 
-  const {hfUserInfo: {name: userName, id: userId}, hfToken} = useHfClient(enteredAccessToken, spaceId, (isLoading) => setSettingsLoading(isLoading), (msg: string) => setErrorSnackbarMessage(msg))
+  const {
+    hfUserInfo: { name: userName, id: userId },
+    hfToken,
+  } = useHfClient(
+    enteredAccessToken,
+    spaceId,
+    (isLoading) => setSettingsLoading(isLoading),
+    (msg: string) => setErrorSnackbarMessage(msg)
+  );
 
   const containerRef = useRef(null);
   const wavesurfer = useWavesurfer(containerRef, localCoverUrl, true);
@@ -180,7 +162,15 @@ const App = ({}: Props) => {
       );
       if (statusRes) {
         setHfStatus(statusRes.data?.runtime?.stage);
-        setMachineType(statusRes.data?.runtime?.hardware?.requested);
+        setHfHardwareInfo({
+          machineType: statusRes.data?.runtime?.hardware?.requested,
+          sleepTime: statusRes.data?.runtime.gcTimeout,
+        });
+        if (statusRes.data?.runtime.gcTimeout < 1800) {
+          setSettingsAlert(
+            "Generations may fail, increase the Auto sleep to 30 minutes or more"
+          );
+        }
       }
       if (spaceId === GPU_SPACE_ID) {
         setGpuSpaceAvailable(true);
@@ -232,71 +222,6 @@ const App = ({}: Props) => {
     return [];
   };
 
-  const onDuplicateSpace = async () => {
-    try {
-      setSettingsLoading(true);
-      const formData = new FormData();
-      formData.append("space_id", `nusic/${spaceId}`);
-      formData.append("hf_token", hfToken);
-      formData.append(
-        "hardware",
-        spaceId === GPU_SPACE_ID ? "t4-small" : "cpu-basic"
-      );
-      await axios.post(
-        `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/duplicate`,
-        formData
-      );
-
-      setSnackbarMessage("Space is created successfully");
-      await checkSpace();
-      // setAccountSetupSteps(2);
-    } catch (e) {
-      setErrorSnackbarMessage(
-        "Error occurred, kindly check if you have billing enabled"
-      );
-    } finally {
-      setSettingsLoading(false);
-    }
-  };
-  const onStartOrPause = async () => {
-    setSettingsLoading(true);
-    const formData = new FormData();
-    formData.append("space_id", getSpaceId(userName, spaceId));
-    formData.append("hf_token", hfToken);
-    if (hfStatus === "RUNNING") {
-      await axios.post(
-        `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/pause-space`,
-        formData
-      );
-      await checkSpace();
-    } else {
-      await axios.post(
-        `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/start-space`,
-        formData
-      );
-      await checkSpace();
-    }
-    setSettingsLoading(false);
-  };
-  const onUpgradeSpace = async () => {
-    setSettingsLoading(true);
-    const formData = new FormData();
-    formData.append("space_id", getSpaceId(userName, spaceId));
-    formData.append("hf_token", hfToken);
-    formData.append("hardware", machineType);
-    try {
-      await axios.post(
-        `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/upgrade-space`,
-        formData
-      );
-      await checkSpace();
-    } catch (e) {
-      setErrorSnackbarMessage("Error upgrading, make sure billing is setup");
-    } finally {
-      setSettingsLoading(false);
-    }
-  };
-
   const onDropZipFile = async (acceptedFiles: File[]) => {
     if (acceptedFiles.length && !isGenerating) {
       setIsUploadingZip(true);
@@ -312,7 +237,8 @@ const App = ({}: Props) => {
         const filePath = res.data[0];
         setVoiceModelProps((props) => ({
           name: props.name || acceptedFiles[0].name.split(".")[0],
-          uploadFileUrl: filePath,
+          uploadFilePath: filePath,
+          fullUploadedUrl: `https://${userName}-${spaceId}.hf.space/file=${filePath}`,
           url: "",
         }));
         setUploadedZipFile(zip);
@@ -365,7 +291,7 @@ const App = ({}: Props) => {
       // if (!selectedArtist && !(voiceModelProps.url && voiceModelProps.name)) {
       if (
         !(
-          (voiceModelProps.url || voiceModelProps.uploadFileUrl) &&
+          (voiceModelProps.url || voiceModelProps.uploadFilePath) &&
           voiceModelProps.name
         )
       ) {
@@ -403,11 +329,11 @@ const App = ({}: Props) => {
       );
       if (choiceIdx === -1) {
         try {
-          const methodFnIdx = _modelObj.uploadFileUrl ? 15 : 8;
-          const _urlData = _modelObj.uploadFileUrl
+          const methodFnIdx = _modelObj.uploadFilePath ? 15 : 8;
+          const _urlData = _modelObj.uploadFilePath
             ? {
-                data: `https://${userName}-${spaceId}.hf.space/file=${_modelObj.uploadFileUrl}`,
-                name: _modelObj.uploadFileUrl,
+                data: _modelObj.fullUploadedUrl,
+                name: _modelObj.uploadFilePath,
                 size: uploadedZipFile?.size,
                 orig_name: uploadedZipFile?.name,
                 is_file: true,
@@ -424,7 +350,7 @@ const App = ({}: Props) => {
           setProgressMsgs((m) => [
             ...m,
             {
-              msg: `${e.message} - Check the provided Model url or Uploaded zip`,
+              msg: `Check the provided Model url or Re-Upload the zip`,
               alert: "error",
             },
           ]);
@@ -494,6 +420,7 @@ const App = ({}: Props) => {
           if (event.stage === "error" && event.message) {
             const msg = event.message;
             setProgressMsgs((m) => [...m, { msg, alert: "error" }]);
+            if (msg === "Connection errored out" && settingsAlert) return;
             // setErrorSnackbarMessage("Error Occurred, try again later");
             // setIsGenerating(false);
             createErrorDoc({
@@ -694,21 +621,23 @@ const App = ({}: Props) => {
           </Box>
           <Typography variant="body2">Unlocking AI Music</Typography>
         </Box>
-        <Chip
-          clickable
-          label={hfStatus || "LOADING"}
-          variant="outlined"
-          onDelete={() => setShowSettings(true)}
-          deleteIcon={<SettingsRounded />}
-          color={
-            hfStatus === "RUNNING"
-              ? "success"
-              : hfStatus === "BUILDING" || !hfStatus
-              ? "warning"
-              : "error"
-          }
-          onClick={() => setShowSettings(true)}
-        />
+        <Badge badgeContent={!!settingsAlert ? "!" : 0} color="warning">
+          <Chip
+            clickable
+            label={hfStatus || "LOADING"}
+            variant="outlined"
+            onDelete={() => setShowSettings(true)}
+            deleteIcon={<SettingsRounded />}
+            color={
+              hfStatus === "RUNNING"
+                ? "success"
+                : hfStatus === "BUILDING" || !hfStatus
+                ? "warning"
+                : "error"
+            }
+            onClick={() => setShowSettings(true)}
+          />
+        </Badge>
       </Stack>
       <Stack gap={2}>
         {/* <Box display={"flex"} justifyContent="center" alignItems="center">
@@ -892,9 +821,9 @@ const App = ({}: Props) => {
                 "linear-gradient(90deg, rgba(84,50,255,1) 0%, rgba(237,50,255,1) 100%)",
               color: "white",
               px: 2.5,
-              '.MuiLoadingButton-loadingIndicator': {
-                color: '#fff'
-              }
+              ".MuiLoadingButton-loadingIndicator": {
+                color: "#fff",
+              },
             }}
             size="large"
             startIcon={<AutoAwesomeRoundedIcon />}
@@ -1002,705 +931,30 @@ const App = ({}: Props) => {
                 </IconButton>
               </Box>
             </Box>
-            // <SpectrogramWs coverUrl={coverUrl} />
-            // <audio controls>
-            //   <source src={coverUrl} />
-            // </audio>
           )}
         </Box>
       </Stack>
-      <Dialog open={showAccountSetup}>
-        <DialogTitle>Welcome</DialogTitle>
-        <DialogContent>
-          <Stack my={1} gap={2}>
-            <Stack gap={1}>
-              <Box display={"flex"} alignItems="center" gap={2} width={400}>
-                <TextField
-                  value={enteredAccessToken}
-                  label="Access Token"
-                  fullWidth
-                  onChange={(e) => setEnteredAccessToken(e.target.value)}
-                  error={!enteredAccessToken}
-                  type={showAt ? "text" : "password"}
-                  disabled={settingsLoading}
-                />
-                <IconButton onClick={() => setShowAt(!showAt)}>
-                  {showAt ? (
-                    <VisibilityOffRoundedIcon />
-                  ) : (
-                    <RemoveRedEyeRoundedIcon />
-                  )}
-                </IconButton>
-              </Box>
-              <Box display={"flex"} gap={0.5}>
-                <Typography variant="caption">
-                  Create an Access Token with Role as
-                </Typography>
-                <Typography variant="caption" fontWeight={900}>
-                  "Write"
-                </Typography>
-                <Typography
-                  variant="caption"
-                  component={"a"}
-                  fontStyle="italic"
-                  sx={{ textDecoration: "underline" }}
-                  href="https://huggingface.co/settings/tokens?new_token=true"
-                  target={"_blank"}
-                >
-                  here
-                </Typography>
-              </Box>
-              {settingsLoading && <LinearProgress />}
-            </Stack>
-            {/* <Button
-                    variant="outlined"
-                    color="warning"
-                    onClick={checkUserAccessToken}
-                    disabled={!enteredAccessToken}
-                  >
-                    Validate
-                  </Button> */}
-          </Stack>
-        </DialogContent>
-      </Dialog>
-      <Dialog open={showSettings} onClose={() => setShowSettings(false)}>
-        <DialogTitle>Settings</DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={() => {
-            if (hfToken) setShowSettings(false);
-          }}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-        <DialogContent sx={{ pt: 0 }}>
-          <Tabs
-            textColor="secondary"
-            indicatorColor="secondary"
-            value={selectedConfigTabIdx}
-            onChange={(e, tabIndex) => {
-              setSelectedConfigTabIdx(tabIndex);
-              setSpaceId(tabIndex === 0 ? GPU_SPACE_ID : CPU_SPACE_ID);
-              window.localStorage.setItem("TAB_IDX", tabIndex);
-            }}
-          >
-            <Tab value={0} label="GPU"></Tab>
-            <Tab value={1} label="CPU (FREE)"></Tab>
-          </Tabs>
-          {selectedConfigTabIdx === 0 &&
-            (gpuSpaceAvailable ? (
-              <Stack gap={2}>
-                <Box display={"flex"} alignItems="center" gap={1}>
-                  <FormControlLabel
-                    sx={{
-                      display: "block",
-                    }}
-                    control={
-                      <Switch
-                        disabled={settingsLoading || hfStatus === "BUILDING"}
-                        checked={
-                          hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                        }
-                        onChange={onStartOrPause}
-                        name="loading"
-                        color={
-                          hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                            ? "success"
-                            : "error"
-                        }
-                      />
-                    }
-                    label="VM"
-                  />
-                  <Chip
-                    label={hfStatus || "--"}
-                    color={
-                      hfStatus === "RUNNING"
-                        ? "success"
-                        : hfStatus === "BUILDING"
-                        ? "warning"
-                        : "error"
-                    }
-                    size="small"
-                  ></Chip>
-                  <IconButton
-                    onClick={() => checkSpace()}
-                    disabled={settingsLoading}
-                  >
-                    <RefreshRounded fontSize="small" />
-                  </IconButton>
-                </Box>
-                {settingsLoading && <LinearProgress />}
-                <Box display={"flex"} alignItems="center" gap={2}>
-                  <TextField
-                    value={hfToken}
-                    label="Access Token"
-                    fullWidth
-                    onChange={(e) => setEnteredAccessToken(e.target.value)}
-                    error={!hfToken}
-                    type={showAt ? "text" : "password"}
-                  />
-                  <IconButton onClick={() => setShowAt(!showAt)}>
-                    {showAt ? (
-                      <VisibilityOffRoundedIcon />
-                    ) : (
-                      <RemoveRedEyeRoundedIcon />
-                    )}
-                  </IconButton>
-                </Box>
-                {hfToken && (
-                  <Box display={"flex"} alignItems="center" gap={4}>
-                    <FormControl sx={{ width: "250px" }}>
-                      <InputLabel id="demo-simple-select-label">
-                        Machine Type
-                      </InputLabel>
-                      <Select
-                        label="Machine Type"
-                        value={machineType}
-                        onChange={(e) =>
-                          setMachineType(e.target.value as string)
-                        }
-                      >
-                        {Object.entries(machineTypes.gpu).map(
-                          ([key, value]) => (
-                            <MenuItem value={key} key={key}>
-                              {value}
-                            </MenuItem>
-                          )
-                        )}
-                      </Select>
-                    </FormControl>
-                    <LoadingButton
-                      variant="outlined"
-                      color="warning"
-                      loading={settingsLoading}
-                      onClick={onUpgradeSpace}
-                    >
-                      Upgrade
-                    </LoadingButton>
-                  </Box>
-                )}
-              </Stack>
-            ) : (
-              <Stack py={4} gap={2}>
-                <Box display={"flex"} alignItems="center" gap={2}>
-                  <TextField
-                    value={hfToken}
-                    label="Access Token"
-                    fullWidth
-                    onChange={(e) => setEnteredAccessToken(e.target.value)}
-                    error={!hfToken}
-                    type={showAt ? "text" : "password"}
-                  />
-                  <IconButton onClick={() => setShowAt(!showAt)}>
-                    {showAt ? (
-                      <VisibilityOffRoundedIcon />
-                    ) : (
-                      <RemoveRedEyeRoundedIcon />
-                    )}
-                  </IconButton>
-                </Box>
-                <LoadingButton
-                  loading={settingsLoading}
-                  variant="contained"
-                  onClick={onDuplicateSpace}
-                >
-                  Duplicate
-                </LoadingButton>
-                <Box display={"flex"} gap={0.5}>
-                  <Typography variant="caption">
-                    Make sure the billing is setup
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    component={"a"}
-                    fontStyle="italic"
-                    sx={{ textDecoration: "underline" }}
-                    href="https://huggingface.co/settings/billing/payment"
-                    target={"_blank"}
-                  >
-                    here
-                  </Typography>
-                </Box>
-              </Stack>
-            ))}
-          {selectedConfigTabIdx === 1 &&
-            (cpuSpaceAvailable ? (
-              <Stack gap={2}>
-                <Box display={"flex"} alignItems="center" gap={1}>
-                  <FormControlLabel
-                    sx={{
-                      display: "block",
-                    }}
-                    control={
-                      <Switch
-                        disabled={settingsLoading || hfStatus === "BUILDING"}
-                        checked={
-                          hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                        }
-                        onChange={onStartOrPause}
-                        name="loading"
-                        color={
-                          hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                            ? "success"
-                            : "error"
-                        }
-                      />
-                    }
-                    label="VM"
-                  />
-                  <Chip
-                    label={hfStatus || "--"}
-                    color={
-                      hfStatus === "RUNNING"
-                        ? "success"
-                        : hfStatus === "BUILDING"
-                        ? "warning"
-                        : "error"
-                    }
-                    size="small"
-                  ></Chip>
-                  <IconButton
-                    onClick={() => checkSpace()}
-                    disabled={settingsLoading}
-                  >
-                    <RefreshRounded fontSize="small" />
-                  </IconButton>
-                </Box>
-                {settingsLoading && <LinearProgress />}
-                <Box display={"flex"} alignItems="center" gap={2}>
-                  <TextField
-                    value={hfToken}
-                    label="Access Token"
-                    fullWidth
-                    onChange={(e) => setEnteredAccessToken(e.target.value)}
-                    error={!hfToken}
-                    type={showAt ? "text" : "password"}
-                  />
-                  <IconButton onClick={() => setShowAt(!showAt)}>
-                    {showAt ? (
-                      <VisibilityOffRoundedIcon />
-                    ) : (
-                      <RemoveRedEyeRoundedIcon />
-                    )}
-                  </IconButton>
-                </Box>
-                {hfToken && (
-                  <Box display={"flex"} alignItems="center" gap={4}>
-                    <FormControl sx={{ width: "250px" }}>
-                      <InputLabel id="demo-simple-select-label">
-                        Machine Type
-                      </InputLabel>
-                      <Select
-                        label="Machine Type"
-                        value={machineType}
-                        onChange={(e) => setMachineType(e.target.value)}
-                      >
-                        {Object.entries(machineTypes.cpu).map(
-                          ([key, value]) => (
-                            <MenuItem value={key} key={key}>
-                              {value}
-                            </MenuItem>
-                          )
-                        )}
-                      </Select>
-                    </FormControl>
-                    <Button
-                      variant="outlined"
-                      color="warning"
-                      onClick={onUpgradeSpace}
-                    >
-                      Upgrade
-                    </Button>
-                  </Box>
-                )}
-              </Stack>
-            ) : (
-              <Stack py={4} gap={2}>
-                <Box display={"flex"} alignItems="center" gap={2}>
-                  <TextField
-                    value={hfToken}
-                    label="Access Token"
-                    fullWidth
-                    onChange={(e) => setEnteredAccessToken(e.target.value)}
-                    error={!hfToken}
-                    type={showAt ? "text" : "password"}
-                  />
-                  <IconButton onClick={() => setShowAt(!showAt)}>
-                    {showAt ? (
-                      <VisibilityOffRoundedIcon />
-                    ) : (
-                      <RemoveRedEyeRoundedIcon />
-                    )}
-                  </IconButton>
-                </Box>
-                <LoadingButton
-                  loading={settingsLoading}
-                  variant="contained"
-                  onClick={onDuplicateSpace}
-                >
-                  Duplicate
-                </LoadingButton>
-              </Stack>
-            ))}
-        </DialogContent>
-      </Dialog>
-      {/* <Dialog open={false}>
-        <DialogTitle>Settings</DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={() => {
-            if (hfToken && spaceAvailable) setShowSettings(false);
-          }}
-          sx={{
-            position: "absolute",
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-        <DialogContent>
-          <Stepper orientation="vertical" activeStep={accountSetupSteps}>
-            <Step>
-              <StepLabel color="success">
-                <Typography>Account</Typography>
-              </StepLabel>
-              <StepContent>
-                <Stack my={2} gap={2}>
-                  <Stack gap={1}>
-                    <Box display={"flex"} alignItems="center" gap={2}>
-                      <TextField
-                        value={enteredAccessToken}
-                        label="Access Token"
-                        fullWidth
-                        onChange={(e) => setEnteredAccessToken(e.target.value)}
-                        error={!enteredAccessToken}
-                        type={showAt ? "text" : "password"}
-                        disabled={settingsLoading}
-                      />
-                      <IconButton onClick={() => setShowAt(!showAt)}>
-                        {showAt ? (
-                          <VisibilityOffRoundedIcon />
-                        ) : (
-                          <RemoveRedEyeRoundedIcon />
-                        )}
-                      </IconButton>
-                    </Box>
-                    <Box display={"flex"} gap={0.5}>
-                      <Typography variant="caption">
-                        Create an Access Token
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        component={"a"}
-                        fontStyle="italic"
-                        sx={{ textDecoration: "underline" }}
-                        href="https://huggingface.co/settings/tokens"
-                        target={"_blank"}
-                      >
-                        here
-                      </Typography>
-                    </Box>
-                    {settingsLoading && <LinearProgress />}
-                  </Stack>
-                </Stack>
-              </StepContent>
-            </Step>
-            <Step>
-              <StepLabel color="success">
-                <Typography>Voice Cover Gen</Typography>
-              </StepLabel>
-              <StepContent>
-                <Box display={"flex"} gap={2} py={2}>
-                  <FormControl
-                    sx={{ width: "250px" }}
-                    size="small"
-                    color="info"
-                  >
-                    <InputLabel id="demo-simple-select-label">
-                      Machine Type
-                    </InputLabel>
-                    <Select
-                      label="Machine Type"
-                      value={machineType}
-                      onChange={(e) => setMachineType(e.target.value)}
-                    >
-                      <MenuItem value={"t4-small"}>t4-small ($0.6/h)</MenuItem>
-                      <MenuItem value={"t4-medium"}>
-                        t4-medium ($0.9/h)
-                      </MenuItem>
-                      <MenuItem value={"a10g-small"}>
-                        a10g-small ($1.5/h)
-                      </MenuItem>
-                      <MenuItem value={"a10g-large"}>
-                        a10g-large ($3.15/h)
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                  <LoadingButton
-                    loading={settingsLoading}
-                    variant="contained"
-                    onClick={onDuplicateSpace}
-                  >
-                    Duplicate
-                  </LoadingButton>
-                </Box>
-                <Box display={"flex"} gap={0.5}>
-                  <Typography variant="caption">
-                    Make sure the billing is setup
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    component={"a"}
-                    fontStyle="italic"
-                    sx={{ textDecoration: "underline" }}
-                    href="https://huggingface.co/settings/billing/payment"
-                    target={"_blank"}
-                  >
-                    here
-                  </Typography>
-                </Box>
-              </StepContent>
-            </Step>
-            <Step>
-              <StepLabel color="success">
-                <Typography>Configuration</Typography>
-              </StepLabel>
-              <StepContent>
-                <Tabs
-                  textColor="secondary"
-                  indicatorColor="secondary"
-                  value={selectedConfigTabIdx}
-                  onChange={(e, tabIndex) => setSelectedConfigTabIdx(tabIndex)}
-                >
-                  <Tab value={0} label="GPU"></Tab>
-                  <Tab value={1} label="CPU (FREE)"></Tab>
-                </Tabs>
-                {selectedConfigTabIdx === 0 && (
-                  <Stack gap={2}>
-                    <Box display={"flex"} alignItems="center" gap={1}>
-                      <FormControlLabel
-                        sx={{
-                          display: "block",
-                        }}
-                        control={
-                          <Switch
-                            disabled={
-                              settingsLoading || hfStatus === "BUILDING"
-                            }
-                            checked={
-                              hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                            }
-                            onChange={onStartOrPause}
-                            name="loading"
-                            color={
-                              hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                                ? "success"
-                                : "error"
-                            }
-                          />
-                        }
-                        label="VM"
-                      />
-                      <Chip
-                        label={hfStatus || "--"}
-                        color={
-                          hfStatus === "RUNNING"
-                            ? "success"
-                            : hfStatus === "BUILDING"
-                            ? "warning"
-                            : "error"
-                        }
-                        size="small"
-                      ></Chip>
-                      <IconButton
-                        onClick={() => checkSpace()}
-                        disabled={settingsLoading}
-                      >
-                        <RefreshRounded fontSize="small" />
-                      </IconButton>
-                    </Box>
-                    {settingsLoading && <LinearProgress />}
-                    <Box display={"flex"} alignItems="center" gap={2}>
-                      <TextField
-                        value={hfToken}
-                        label="Access Token"
-                        fullWidth
-                        onChange={(e) => setEnteredAccessToken(e.target.value)}
-                        error={!hfToken}
-                        type={showAt ? "text" : "password"}
-                      />
-                      <IconButton onClick={() => setShowAt(!showAt)}>
-                        {showAt ? (
-                          <VisibilityOffRoundedIcon />
-                        ) : (
-                          <RemoveRedEyeRoundedIcon />
-                        )}
-                      </IconButton>
-                    </Box>
-                    {hfToken && (
-                      <Box display={"flex"} alignItems="center" gap={4}>
-                        <FormControl sx={{ width: "250px" }}>
-                          <InputLabel id="demo-simple-select-label">
-                            Machine Type
-                          </InputLabel>
-                          <Select
-                            label="Machine Type"
-                            value={machineType}
-                            onChange={(e) => setMachineType(e.target.value)}
-                          >
-                            {Object.entries(machineTypes.gpu).map(
-                              ([key, value]) => (
-                                <MenuItem value={key} key={key}>
-                                  {value}
-                                </MenuItem>
-                              )
-                            )}
-                          </Select>
-                        </FormControl>
-                        <Button
-                          variant="outlined"
-                          color="warning"
-                          onClick={async () => {
-                            setSettingsLoading(true);
-                            const formData = new FormData();
-                            formData.append("space_id", getSpaceId(userName));
-                            formData.append("hf_token", hfToken);
-                            formData.append("hardware", machineType);
-                            await axios.post(
-                              `${
-                                import.meta.env.VITE_GPU_REMIX_SERVER
-                              }/upgrade-space`,
-                              formData
-                            );
-                            setSettingsLoading(false);
-                          }}
-                        >
-                          Upgrade
-                        </Button>
-                      </Box>
-                    )}
-                  </Stack>
-                )}
-                {selectedConfigTabIdx === 1 && (
-                  <Stack gap={2}>
-                    <Box display={"flex"} alignItems="center" gap={1}>
-                      <FormControlLabel
-                        sx={{
-                          display: "block",
-                        }}
-                        control={
-                          <Switch
-                            disabled={
-                              settingsLoading || hfStatus === "BUILDING"
-                            }
-                            checked={
-                              hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                            }
-                            onChange={onStartOrPause}
-                            name="loading"
-                            color={
-                              hfStatus === "RUNNING" || hfStatus === "BUILDING"
-                                ? "success"
-                                : "error"
-                            }
-                          />
-                        }
-                        label="VM"
-                      />
-                      <Chip
-                        label={hfStatus || "--"}
-                        color={
-                          hfStatus === "RUNNING"
-                            ? "success"
-                            : hfStatus === "BUILDING"
-                            ? "warning"
-                            : "error"
-                        }
-                        size="small"
-                      ></Chip>
-                      <IconButton
-                        onClick={() => checkSpace()}
-                        disabled={settingsLoading}
-                      >
-                        <RefreshRounded fontSize="small" />
-                      </IconButton>
-                    </Box>
-                    {settingsLoading && <LinearProgress />}
-                    <Box display={"flex"} alignItems="center" gap={2}>
-                      <TextField
-                        value={hfToken}
-                        label="Access Token"
-                        fullWidth
-                        onChange={(e) => setEnteredAccessToken(e.target.value)}
-                        error={!hfToken}
-                        type={showAt ? "text" : "password"}
-                      />
-                      <IconButton onClick={() => setShowAt(!showAt)}>
-                        {showAt ? (
-                          <VisibilityOffRoundedIcon />
-                        ) : (
-                          <RemoveRedEyeRoundedIcon />
-                        )}
-                      </IconButton>
-                    </Box>
-                    {hfToken && (
-                      <Box display={"flex"} alignItems="center" gap={4}>
-                        <FormControl sx={{ width: "250px" }}>
-                          <InputLabel id="demo-simple-select-label">
-                            Machine Type
-                          </InputLabel>
-                          <Select
-                            label="Machine Type"
-                            value={machineType}
-                            onChange={(e) => setMachineType(e.target.value)}
-                          >
-                            {Object.entries(machineTypes.cpu).map(
-                              ([key, value]) => (
-                                <MenuItem value={key} key={key}>
-                                  {value}
-                                </MenuItem>
-                              )
-                            )}
-                          </Select>
-                        </FormControl>
-                        <Button
-                          variant="outlined"
-                          color="warning"
-                          onClick={async () => {
-                            setSettingsLoading(true);
-                            const formData = new FormData();
-                            formData.append("space_id", getSpaceId(userName));
-                            formData.append("hf_token", hfToken);
-                            formData.append("hardware", machineType);
-                            await axios.post(
-                              `${
-                                import.meta.env.VITE_GPU_REMIX_SERVER
-                              }/upgrade-space`,
-                              formData
-                            );
-                            setSettingsLoading(false);
-                          }}
-                        >
-                          Upgrade
-                        </Button>
-                      </Box>
-                    )}
-                  </Stack>
-                )}
-              </StepContent>
-            </Step>
-          </Stepper>
-        </DialogContent>
-      </Dialog> */}
+      <Settings
+        checkSpace={checkSpace}
+        cpuSpaceAvailable={cpuSpaceAvailable}
+        enteredAccessToken={enteredAccessToken}
+        gpuSpaceAvailable={gpuSpaceAvailable}
+        hfStatus={hfStatus}
+        hfToken={hfToken}
+        setEnteredAccessToken={setEnteredAccessToken}
+        setErrorSnackbarMessage={setErrorSnackbarMessage}
+        setSettingsLoading={setSettingsLoading}
+        setShowSettings={setShowSettings}
+        setSnackbarMessage={setSnackbarMessage}
+        setSpaceId={setSpaceId}
+        settingsAlert={settingsAlert}
+        settingsLoading={settingsLoading}
+        showAccountSetup={showAccountSetup}
+        showSettings={showSettings}
+        spaceId={spaceId}
+        userName={userName}
+        hfHardwareInfo={hfHardwareInfo}
+      />
       <Snackbar
         open={!!snackbarMessage}
         message={snackbarMessage}
@@ -1727,6 +981,6 @@ const App = ({}: Props) => {
       </Snackbar>
     </Box>
   );
-}
+};
 
 export default App;
