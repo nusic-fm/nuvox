@@ -62,10 +62,11 @@ const App = ({}: Props) => {
   const [cpuSpaceAvailable, setCpuSpaceAvailable] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsAlert, setSettingsAlert] = useState("");
-  const [spaceId, setSpaceId] = useState(() => {
-    const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
-    return idx === 0 ? GPU_SPACE_ID : CPU_SPACE_ID;
-  });
+  const [spaceId, setSpaceId] = useState(CPU_SPACE_ID)
+  // (() => {
+  //   const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
+  //   return idx === 0 ? GPU_SPACE_ID : CPU_SPACE_ID;
+  // });
   const [voiceModelChoices, setVoiceModelChoices] = useState<string[][]>(); // TODO
   const [generateAfterRestart, setGenerateAfterRestart] = useState(false);
 
@@ -570,7 +571,7 @@ const App = ({}: Props) => {
       // getModelChoices();
     }
   }, [hfToken, userName, spaceId]);
-  
+
   useEffect(() => {
     if (showSettings) {
       checkSpace();
