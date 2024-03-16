@@ -5,8 +5,8 @@ import {
   DialogTitle,
   IconButton,
   DialogContent,
-  Tabs,
-  Tab,
+  // Tabs,
+  // Tab,
   Stack,
   Box,
   FormControlLabel,
@@ -14,14 +14,15 @@ import {
   Chip,
   LinearProgress,
   TextField,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Alert,
+  // Divider,
+  // FormControl,
+  // InputLabel,
+  // Select,
+  // MenuItem,
+  // Alert,
   Typography,
-  Button,
+  // Button,
+  Tooltip,
 } from "@mui/material";
 import { CPU_SPACE_ID, GPU_SPACE_ID, HardwareInfo } from "../App";
 import CloseIcon from "@mui/icons-material/Close";
@@ -87,10 +88,11 @@ const Settings = ({
   setSettingsLoading,
   hfHardwareInfo
 }: Props) => {
-  const [selectedConfigTabIdx, setSelectedConfigTabIdx] = useState(() => {
-    const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
-    return idx;
-  });
+  const [selectedConfigTabIdx, setSelectedConfigTabIdx] = useState(1)
+  //   () => {
+  //   const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
+  //   return idx;
+  // });
   const [showAt, setShowAt] = useState(false);
   const [machineType, setMachineType] = useState("");
   const [machineSleepTime, setMachineSleepTime] = useState(0);
@@ -244,7 +246,7 @@ const Settings = ({
           <CloseIcon />
         </IconButton>
         <DialogContent sx={{ pt: 0 }}>
-          <Tabs
+          {/* <Tabs
             textColor="secondary"
             indicatorColor="secondary"
             value={selectedConfigTabIdx}
@@ -256,8 +258,8 @@ const Settings = ({
           >
             <Tab value={0} label="GPU"></Tab>
             <Tab value={1} label="CPU (FREE)"></Tab>
-          </Tabs>
-          {selectedConfigTabIdx === 0 &&
+          </Tabs> */}
+          {/* {selectedConfigTabIdx === 0 &&
             (gpuSpaceAvailable ? (
               <Stack gap={2} mt={2}>
                 <Box display={"flex"} alignItems="center" gap={1}>
@@ -442,10 +444,10 @@ const Settings = ({
                   </Typography>
                 </Box>
               </Stack>
-            ))}
+            ))} */}
           {selectedConfigTabIdx === 1 &&
             (cpuSpaceAvailable ? (
-              <Stack gap={2} mt={2}>
+              <Stack gap={2}>
                 <Box display={"flex"} alignItems="center" gap={1}>
                   <FormControlLabel
                     sx={{
@@ -479,14 +481,15 @@ const Settings = ({
                     }
                     size="small"
                   ></Chip>
+                  <Tooltip title='refresh status'>
                   <IconButton
                     onClick={() => checkSpace()}
                     disabled={settingsLoading}
                   >
                     <RefreshRounded fontSize="small" />
-                  </IconButton>
+                  </IconButton></Tooltip>
                 </Box>
-                {settingsLoading && <LinearProgress />}
+                <LinearProgress sx={{visibility: settingsLoading ? 'show' : 'hidden'}} />
                 <Box display={"flex"} alignItems="center" gap={2}>
                   <TextField
                     value={hfToken}
@@ -504,7 +507,7 @@ const Settings = ({
                     )}
                   </IconButton>
                 </Box>
-                <Divider />
+                {/* <Divider />
                 {hfToken && (
                   <Box display={"flex"} alignItems="center" gap={4} mt={2}>
                     <FormControl sx={{ width: "250px" }} size='small'>
@@ -534,7 +537,7 @@ const Settings = ({
                       Upgrade
                     </Button>
                   </Box>
-                )}
+                )} */}
               </Stack>
             ) : (
               <Stack py={4} gap={2}>

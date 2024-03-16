@@ -569,7 +569,14 @@ const App = ({}: Props) => {
       checkSpace();
       // getModelChoices();
     }
-  }, [hfToken, userName, spaceId, showSettings]);
+  }, [hfToken, userName, spaceId]);
+  
+  useEffect(() => {
+    if (showSettings) {
+      checkSpace();
+      // getModelChoices();
+    }
+  }, [showSettings]);
 
   useEffect(() => {
     if (!hfToken) {
@@ -719,43 +726,6 @@ const App = ({}: Props) => {
           userId={userId}
           onDropZipFile={onDropZipFile}
         />
-        {/* <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography>Add Custom Models</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Box
-                display={"flex"}
-                justifyContent="center"
-                mb={2}
-                alignItems="center"
-                gap={2}
-              >
-                <TextField
-                  label="Model Download Url"
-                  sx={{ width: 500 }}
-                  onChange={(e) => {
-                    setVoiceModelProps({
-                      ...voiceModelProps,
-                      url: e.target.value,
-                    });
-                  }}
-                  size="small"
-                />
-                <TextField
-                  label="Model Name"
-                  // sx={{ width: 500 }}
-                  onChange={(e) => {
-                    setVoiceModelProps({
-                      ...voiceModelProps,
-                      name: e.target.value,
-                    });
-                  }}
-                  size="small"
-                />
-              </Box>
-            </AccordionDetails>
-          </Accordion> */}
         <Box
           // mt={10}
           width="100%"
