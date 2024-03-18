@@ -424,7 +424,9 @@ const App = ({}: Props) => {
                 content_id: inputSongUrl,
                 model_url: _modelObj.url,
               });
-              await createTxHash();
+              try {
+                await createTxHash();
+              } catch (e) {}
               setIsGenerating(false);
             }
           }
@@ -579,21 +581,13 @@ const App = ({}: Props) => {
       try {
         const res = await axios.post(
           `${import.meta.env.VITE_BLOCKCHAIN_SERVER}/create-model-record`,
-          // {
-          //   user_id: userId,
-          //   model_url: voiceModelProps.url,
-          //   model_name: voiceModelProps.name,
-          //   youtube_url: youtubeLink,
-          //   creator: "",
-          //   size,
-          // }
           {
-            user_id: "64f87449d78a0037fe9f40fd",
-            model_url: "https://pixeldrain.com/u/3tJmABXA",
-            model_name: "Gawr",
-            youtube_url: "https://www.youtube.com/watch?v=luU6_cOfjnI",
+            user_id: userId,
+            model_url: voiceModelProps.url,
+            model_name: voiceModelProps.name,
+            youtube_url: youtubeLink,
             creator: "",
-            size: 0,
+            size,
           }
         );
         setTxHash(res.data.txHash);
