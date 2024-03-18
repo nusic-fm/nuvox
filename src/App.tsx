@@ -62,7 +62,7 @@ const App = ({}: Props) => {
   const [cpuSpaceAvailable, setCpuSpaceAvailable] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(false);
   const [settingsAlert, setSettingsAlert] = useState("");
-  const [spaceId, setSpaceId] = useState(CPU_SPACE_ID)
+  const [spaceId, setSpaceId] = useState(CPU_SPACE_ID);
   // (() => {
   //   const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
   //   return idx === 0 ? GPU_SPACE_ID : CPU_SPACE_ID;
@@ -280,6 +280,7 @@ const App = ({}: Props) => {
     setProgressMsgs([]);
     setHashedAudioUrl("");
     setGenerationProgress(0);
+    setTxHash("");
   };
 
   const onGenerateVoiceCover = async () => {
@@ -411,6 +412,7 @@ const App = ({}: Props) => {
                 content_id: inputSongUrl,
                 model_url: _modelObj.url,
               });
+              // await createTxHash();
               setIsGenerating(false);
             }
           }
@@ -537,6 +539,66 @@ const App = ({}: Props) => {
     // 0: Generate with upload
     // {"data":[{"name":"/tmp/gradio/845f77312dbe62450452cca0181ea6fca735676a/noreturn_chorus_16s 1.wav","size":512078,"data":"","orig_name":"noreturn_chorus_16s (1).wav","is_file":true}],"event_data":null,"fn_index":0,"session_hash":"yw4turma3s"}
     // {"msg":"process_completed","output":{"data":[{"orig_name":"noreturn_chorus_16s 1.wav","name":"/tmp/gradio/8db15c9c74acd78c78be88ff4d2c6a16b9099eb2/noreturn_chorus_16s 1.wav","size":512078,"data":null,"is_file":true},{"value":"/tmp/gradio/8db15c9c74acd78c78be88ff4d2c6a16b9099eb2/noreturn_chorus_16s 1.wav","__type__":"update"}],"is_generating":false,"duration":0.0005247592926025391,"average_duration":0.0005247592926025391},"success":true}
+  };
+
+  const createTxHash = async () => {
+    if (!txHash) {
+      let size = 0;
+      if (voiceModelProps.url) {
+        try {
+          const modelSizeFormData = new FormData();
+          modelSizeFormData.append("url", voiceModelProps.url);
+          const modelSizeRes = await axios.post(
+            `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/model-size`,
+            modelSizeFormData
+          );
+          size = modelSizeRes.data.size;
+        } catch (e: any) {
+          await createErrorDoc({
+            type: "model_size",
+            message: e.message || "",
+            userId,
+            userName,
+            modelUrl: voiceModelProps.url,
+            modelName: voiceModelProps.name,
+          });
+        }
+      }
+      try {
+        const res = await axios.post(
+          `${import.meta.env.VITE_BLOCKCHAIN_SERVER}/create-model-record`,
+          // {
+          //   user_id: userId,
+          //   model_url: voiceModelProps.url,
+          //   model_name: voiceModelProps.name,
+          //   youtube_url: youtubeLink,
+          //   creator: "",
+          //   size,
+          // }
+          {
+            user_id: "64f87449d78a0037fe9f40fd",
+            model_url: "https://pixeldrain.com/u/3tJmABXA",
+            model_name: "Gawr",
+            youtube_url: "https://www.youtube.com/watch?v=luU6_cOfjnI",
+            creator: "",
+            size: 0,
+          }
+        );
+        setTxHash(res.data.txHash);
+        console.log("success", res.data.txHash);
+      } catch (e: any) {
+        await createErrorDoc({
+          type: "smartcontract_tx",
+          message: e.message || "",
+          user_id: userId,
+          model_url: voiceModelProps.fullUploadedUrl,
+          model_name: voiceModelProps.name,
+          youtube_url: youtubeLink,
+          creator: "",
+          size,
+        });
+      }
+    }
   };
 
   const hashAndDownload = async () => {

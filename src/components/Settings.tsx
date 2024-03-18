@@ -23,6 +23,7 @@ import {
   Typography,
   // Button,
   Tooltip,
+  DialogContentText,
 } from "@mui/material";
 import { CPU_SPACE_ID, GPU_SPACE_ID, HardwareInfo } from "../App";
 import CloseIcon from "@mui/icons-material/Close";
@@ -64,7 +65,7 @@ type Props = {
   hfStatus: string;
   checkSpace: any;
   setSettingsLoading: any;
-  hfHardwareInfo: HardwareInfo
+  hfHardwareInfo: HardwareInfo;
 };
 
 const Settings = ({
@@ -86,9 +87,9 @@ const Settings = ({
   hfStatus,
   checkSpace,
   setSettingsLoading,
-  hfHardwareInfo
+  hfHardwareInfo,
 }: Props) => {
-  const [selectedConfigTabIdx, setSelectedConfigTabIdx] = useState(1)
+  const [selectedConfigTabIdx, setSelectedConfigTabIdx] = useState(1);
   //   () => {
   //   const idx = parseInt(window.localStorage.getItem("TAB_IDX") ?? "0");
   //   return idx;
@@ -122,10 +123,9 @@ const Settings = ({
     const formData = new FormData();
     formData.append("space_id", getSpaceId(userName, spaceId));
     formData.append("hf_token", hfToken);
-    if (machineType)
-        formData.append("hardware", machineType);
+    if (machineType) formData.append("hardware", machineType);
     if (machineSleepTime)
-        formData.append("sleep_time", machineSleepTime.toString());
+      formData.append("sleep_time", machineSleepTime.toString());
     try {
       await axios.post(
         `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/upgrade-space`,
@@ -168,10 +168,10 @@ const Settings = ({
 
   useEffect(() => {
     if (hfHardwareInfo.machineType || hfHardwareInfo.sleepTime) {
-        setMachineType('')
-        setMachineSleepTime(0)
+      setMachineType("");
+      setMachineSleepTime(0);
     }
-  }, [hfHardwareInfo])
+  }, [hfHardwareInfo]);
 
   return (
     <>
@@ -246,6 +246,9 @@ const Settings = ({
           <CloseIcon />
         </IconButton>
         <DialogContent sx={{ pt: 0 }}>
+          <Typography sx={{ mb: 1, overflow: "hidden", whiteSpace: "nowrap" }}>
+            Hi, {userName}
+          </Typography>
           {/* <Tabs
             textColor="secondary"
             indicatorColor="secondary"
@@ -481,15 +484,18 @@ const Settings = ({
                     }
                     size="small"
                   ></Chip>
-                  <Tooltip title='refresh status'>
-                  <IconButton
-                    onClick={() => checkSpace()}
-                    disabled={settingsLoading}
-                  >
-                    <RefreshRounded fontSize="small" />
-                  </IconButton></Tooltip>
+                  <Tooltip title="refresh status">
+                    <IconButton
+                      onClick={() => checkSpace()}
+                      disabled={settingsLoading}
+                    >
+                      <RefreshRounded fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
-                <LinearProgress sx={{visibility: settingsLoading ? 'show' : 'hidden'}} />
+                <LinearProgress
+                  sx={{ visibility: settingsLoading ? "show" : "hidden" }}
+                />
                 <Box display={"flex"} alignItems="center" gap={2}>
                   <TextField
                     value={hfToken}
