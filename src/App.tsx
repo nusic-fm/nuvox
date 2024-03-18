@@ -88,6 +88,7 @@ const App = ({}: Props) => {
     ""
     // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/arr.wav?alt=media&token=141f6e3c-3ef7-48ec-bd37-3df48783570b"
   );
+  const [localCoverBlob, setLocalCoverBlob] = useState<Blob>();
   const [localCoverUrl, setLocalCoverUrl] = useState("");
   const [voiceModelProps, setVoiceModelProps] = useState<{
     url: string;
@@ -109,13 +110,14 @@ const App = ({}: Props) => {
   >([]);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [isUploadingZip, setIsUploadingZip] = useState(false);
-  const [hfStatus, setHfStatus] = useState<string>("");
+  const [hfStatus, setHfStatus] = useState<string>("LOADING");
   const [hfHardwareInfo, setHfHardwareInfo] = useState<HardwareInfo>({
     machineType: "",
     sleepTime: 0,
   });
   const [txHash, setTxHash] = useState<string>();
   const [hashedAudioUrl, setHashedAudioUrl] = useState<string>();
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const {
     hfUserInfo: { name: userName, id: userId },
@@ -286,7 +288,7 @@ const App = ({}: Props) => {
   const onGenerateVoiceCover = async () => {
     if (hfToken) {
       if (hfStatus !== "RUNNING") {
-        setSnackbarMessage("Space is Building now, try again later");
+        setSnackbarMessage("Setting up the server, kindly wait");
         await checkSpace();
         return;
       }
@@ -398,7 +400,7 @@ const App = ({}: Props) => {
         // }`;
         // setCoverUrl(audioUrl);
         const submitData = app.submit(6, generateData);
-        submitData.on("data", (event) => {
+        submitData.on("data", async (event) => {
           if (event.data.length) {
             const fileData = event.data[0] as any;
             if (fileData) {
@@ -406,13 +408,23 @@ const App = ({}: Props) => {
               const _name = fileData.name;
               const audioUrl = `https://${userName}-${spaceId}.hf.space/file=${_name}`;
               setCoverUrl(audioUrl);
+              try {
+                const res = await axios.get(coverUrl, {
+                  responseType: "blob",
+                  headers: { Authorization: `Bearer ${hfToken}` },
+                });
+                const blob = new Blob([res.data]);
+                setLocalCoverBlob(blob);
+                setLocalCoverUrl(URL.createObjectURL(blob));
+              } catch (e) {}
+
               setGenerationProgress(0);
               logFirebaseEvent("select_content", {
                 content_type: "complete",
                 content_id: inputSongUrl,
                 model_url: _modelObj.url,
               });
-              // await createTxHash();
+              await createTxHash();
               setIsGenerating(false);
             }
           }
@@ -602,30 +614,42 @@ const App = ({}: Props) => {
   };
 
   const hashAndDownload = async () => {
-    if (txHash) {
+    setIsDownloading(true);
+    let _url = hashedAudioUrl;
+    if (!_url && txHash && localCoverBlob) {
+      const formData = new FormData();
+      formData.append("hash", txHash);
+      formData.append("audio", localCoverBlob);
       const res = await axios.post(
         `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/encode-hash`,
-        { hash: txHash },
+        formData,
         { responseType: "blob" }
       );
       const hashedBlob = new Blob([res.data]);
       setHashedAudioUrl(URL.createObjectURL(hashedBlob));
-      return hashedBlob;
+      _url = URL.createObjectURL(hashedBlob);
     }
+    const a = document.createElement("a");
+    a.href = _url ? _url : localCoverUrl;
+    a.download = `${voiceModelProps.name}_nusic_cover.mp3`; //TODO: get youtube song name
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setIsDownloading(false);
   };
 
-  useEffect(() => {
-    if (coverUrl) {
-      (async () => {
-        const res = await axios.get(coverUrl, {
-          responseType: "blob",
-          headers: { Authorization: `Bearer ${hfToken}` },
-        });
-        const blob = new Blob([res.data]);
-        setLocalCoverUrl(URL.createObjectURL(blob));
-      })();
-    }
-  }, [coverUrl]);
+  // useEffect(() => {
+  //   if (coverUrl) {
+  //     (async () => {
+  //       const res = await axios.get(coverUrl, {
+  //         responseType: "blob",
+  //         headers: { Authorization: `Bearer ${hfToken}` },
+  //       });
+  //       const blob = new Blob([res.data]);
+  //       setLocalCoverUrl(URL.createObjectURL(blob));
+  //     })();
+  //   }
+  // }, [coverUrl]);
 
   useEffect(() => {
     if (hfToken && userName && spaceId) {
@@ -694,14 +718,14 @@ const App = ({}: Props) => {
         <Badge badgeContent={!!settingsAlert ? "!" : 0} color="warning">
           <Chip
             clickable
-            label={hfStatus || "LOADING"}
+            label={hfStatus === "BUILDING" ? "LOADING" : hfStatus}
             variant="outlined"
             onDelete={() => setShowSettings(true)}
             deleteIcon={<SettingsRounded />}
             color={
               hfStatus === "RUNNING"
                 ? "success"
-                : hfStatus === "BUILDING" || !hfStatus
+                : hfStatus === "BUILDING" || hfStatus === "LOADING"
                 ? "warning"
                 : "error"
             }
@@ -945,21 +969,7 @@ const App = ({}: Props) => {
                   <PlayRounded />
                   <PauseRounded />
                 </Button>
-                <IconButton
-                  onClick={async () => {
-                    let _url = hashedAudioUrl;
-                    if (!_url) {
-                      const blob = await hashAndDownload();
-                      if (blob) _url = URL.createObjectURL(blob);
-                    }
-                    const a = document.createElement("a");
-                    a.href = _url ? _url : localCoverUrl;
-                    a.download = `${voiceModelProps.name}_nusic_cover.mp3`; //TODO: get youtube song name
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                  }}
-                >
+                <IconButton onClick={hashAndDownload} disabled={isDownloading}>
                   <DownloadRounded color="info" />
                 </IconButton>
               </Box>

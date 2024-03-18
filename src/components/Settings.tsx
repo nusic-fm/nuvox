@@ -1,4 +1,4 @@
-import RefreshRounded from "@mui/icons-material/RefreshRounded";
+// import RefreshRounded from "@mui/icons-material/RefreshRounded";
 import { LoadingButton } from "@mui/lab";
 import {
   Dialog,
@@ -484,14 +484,14 @@ const Settings = ({
                     }
                     size="small"
                   ></Chip>
-                  <Tooltip title="refresh status">
+                  {/* <Tooltip title="refresh status">
                     <IconButton
                       onClick={() => checkSpace()}
                       disabled={settingsLoading}
                     >
                       <RefreshRounded fontSize="small" />
                     </IconButton>
-                  </Tooltip>
+                  </Tooltip> */}
                 </Box>
                 <LinearProgress
                   sx={{ visibility: settingsLoading ? "show" : "hidden" }}
