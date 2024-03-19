@@ -12,12 +12,17 @@ import {
   // Link,
 } from "react-router-dom";
 import App from "./App";
+import DecodeHash from "./DecodeHash";
 
 const router = createHashRouter([
   {
     path: "/",
     element: <App />,
-  }
+  },
+  {
+    path: "/decode",
+    element: <DecodeHash />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
