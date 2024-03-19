@@ -648,6 +648,7 @@ const App = ({}: Props) => {
   useEffect(() => {
     if (hfToken && userName && spaceId) {
       checkSpace();
+      if (showAccountSetup) setShowAccountSetup(false);
       // getModelChoices();
     }
   }, [hfToken, userName, spaceId]);
