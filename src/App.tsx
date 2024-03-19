@@ -409,7 +409,7 @@ const App = ({}: Props) => {
               const audioUrl = `https://${userName}-${spaceId}.hf.space/file=${_name}`;
               setCoverUrl(audioUrl);
               try {
-                const res = await axios.get(coverUrl, {
+                const res = await axios.get(audioUrl, {
                   responseType: "blob",
                   headers: { Authorization: `Bearer ${hfToken}` },
                 });
