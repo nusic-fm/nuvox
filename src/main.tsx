@@ -13,6 +13,7 @@ import {
 } from "react-router-dom";
 import App from "./App";
 import DecodeHash from "./DecodeHash";
+import VoxPlayer from "./VoxPlayer";
 
 const router = createHashRouter([
   {
@@ -22,6 +23,10 @@ const router = createHashRouter([
   {
     path: "/decode",
     element: <DecodeHash />,
+  },
+  {
+    path: "/player",
+    element: <VoxPlayer />,
   },
 ]);
 
