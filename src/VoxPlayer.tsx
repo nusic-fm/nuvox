@@ -1,5 +1,11 @@
 import PlayArrow from "@mui/icons-material/PlayArrow";
-import { Chip, IconButton, Stack, Typography } from "@mui/material";
+import {
+  Chip,
+  CircularProgress,
+  IconButton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
@@ -50,25 +56,48 @@ const VoxPlayer = (props: Props) => {
   const [songId, setSongId] = useState("");
   const [voice, setVoice] = useState("");
   const [started, setStarted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [voiceLoading, setVoiceLoading] = useState(false);
   const { playAudio, initializeTone, isTonePlaying, stopPlayer } = useTonejs();
 
-  useEffect(() => {
-    if (songId && voice) {
-      const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
-      const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${voice}.mp3?alt=media`;
-      playAudio(_instrUrl, _audioUrl);
-    }
-  }, [voice]);
+  const onSongClick = async (_id: string) => {
+    setLoading(true);
+    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fno_vocals.mp3?alt=media`;
+    //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
+    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fvocals.mp3?alt=media`;
+    setVoice("");
+    setSongId(_id);
+    await playAudio(_instrUrl, _audioUrl, true);
 
-  useEffect(() => {
-    if (songId) {
-      const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
-      const firstVoice = (artistsObj as any)[songId].voices[0].id;
-      const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${firstVoice}.mp3?alt=media`;
-      playAudio(_instrUrl, _audioUrl, true);
-      setVoice("");
-    }
-  }, [songId]);
+    setLoading(false);
+  };
+
+  const onVoiceChange = async (_voiceId: string) => {
+    setVoiceLoading(true);
+    const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
+    const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${_voiceId}.mp3?alt=media`;
+    setVoice(_voiceId);
+    await playAudio(_instrUrl, _audioUrl);
+    setVoiceLoading(false);
+  };
+
+  //   useEffect(() => {
+  //     if (songId && voice) {
+  //       const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
+  //       const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${voice}.mp3?alt=media`;
+  //       playAudio(_instrUrl, _audioUrl);
+  //     }
+  //   }, [voice]);
+
+  //   useEffect(() => {
+  //     if (songId) {
+  //       const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
+  //       //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
+  //       const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fvocals.mp3?alt=media`;
+  //       playAudio(_instrUrl, _audioUrl, true);
+  //       setVoice("");
+  //     }
+  //   }, [songId]);
 
   return (
     <Stack>
@@ -110,6 +139,7 @@ const VoxPlayer = (props: Props) => {
         <Box key={artistKey} display="flex" alignItems={"center"} gap={2}>
           <Typography>{artistValue.musicName}</Typography>
           <IconButton
+            disabled={loading || voiceLoading}
             onClick={async () => {
               if (!started) {
                 await initializeTone();
@@ -118,30 +148,42 @@ const VoxPlayer = (props: Props) => {
               if (isTonePlaying) {
                 stopPlayer();
               }
-              setSongId(artistKey);
+              //   setSongId(artistKey);
+              onSongClick(artistKey);
             }}
           >
-            {isTonePlaying && artistKey === songId ? (
+            {loading && artistKey === songId ? (
+              <CircularProgress size={"24px"} color="secondary" />
+            ) : isTonePlaying && artistKey === songId ? (
               <StopRoundedIcon />
             ) : (
               <PlayArrow />
             )}
           </IconButton>
+          {songId === artistKey && !loading && (
+            <Chip
+              disabled={voiceLoading}
+              label={artistValue.artist}
+              variant={voice === "vocals" || !voice ? "outlined" : "filled"}
+              clickable
+              onClick={() => {
+                onVoiceChange("vocals");
+                // setVoice("vocals");
+              }}
+            />
+          )}
           {songId === artistKey &&
+            !loading &&
             artistValue.voices.map((v, i) => (
               <Chip
+                disabled={voiceLoading}
                 key={v.name}
                 label={v.name}
-                variant={
-                  voice === v.id
-                    ? "outlined"
-                    : !voice && i === 0
-                    ? "outlined"
-                    : "filled"
-                }
+                variant={voice === v.id ? "outlined" : "filled"}
                 clickable
                 onClick={() => {
-                  setVoice(v.id);
+                  onVoiceChange(v.id);
+                  //   setVoice(v.id);
                 }}
               />
             ))}
