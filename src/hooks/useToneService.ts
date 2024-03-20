@@ -2,9 +2,10 @@ import { useRef, useState } from "react";
 import * as Tone from "tone";
 import { ToneAudioBuffer } from "tone";
 
-export const useTonejs = (instrumentalUrl: string) => {
+export const useTonejs = () => {
   const [currentPlayer, setCurrentPlayer] = useState<Tone.Player | null>();
   const playerRef = useRef<Tone.Player | null>(null);
+  const instrPlayerRef = useRef<Tone.Player | null>(null);
   const startTimeRef = useRef(0);
   const scheduledNextTrackBf = useRef<Tone.ToneAudioBuffer | null>(null);
 
@@ -51,21 +52,33 @@ export const useTonejs = (instrumentalUrl: string) => {
     }
   };
 
-  const playAudio = async (url: string): Promise<void> => {
+  const playAudio = async (
+    instrUrl: string,
+    vocalsUrl: string,
+    changeInstr: boolean = false
+  ): Promise<void> => {
     if (toneLoadingForSection) {
       scheduledNextTrackBf.current = null;
       setToneLoadingForSection(null);
       onEndedCalledRef.current = false;
     }
-    if (playerRef.current) {
-      await switchAudio(url);
+    if (playerRef.current && !changeInstr) {
+      await switchAudio(vocalsUrl);
       return;
     }
     await initializeTone();
-
+    if (instrPlayerRef.current) {
+      instrPlayerRef.current.disconnect();
+      instrPlayerRef.current.disconnect();
+    }
+    if (playerRef.current) {
+      playerRef.current.disconnect();
+      playerRef.current.dispose();
+    }
     // Load and play the new audio
-    const player = new Tone.Player(url).sync().toDestination();
-    const instrPlayer = new Tone.Player(instrumentalUrl).sync().toDestination();
+    const player = new Tone.Player(vocalsUrl).sync().toDestination();
+    const instrPlayer = new Tone.Player(instrUrl).sync().toDestination();
+    instrPlayerRef.current = instrPlayer;
     playerRef.current = player;
     setCurrentPlayer(player);
     await Tone.loaded();
@@ -97,6 +110,22 @@ export const useTonejs = (instrumentalUrl: string) => {
       };
     });
   };
+  // const changeInstrAudio = async (url: string) => {
+  //   await new Promise((res) => {
+  //     const audioBuffer = new Tone.Buffer(url);
+  //     audioBuffer.onload = (bf) => {
+  //       // Audio is downloaded
+  //       if (instrPlayerRef.current) {
+  //         instrPlayerRef.current.buffer = bf;
+  //         Tone.Transport.start();
+  //         instrPlayerRef.current.start();
+  //       } else {
+
+  //       }
+  //       res("");
+  //     };
+  //   });
+  // };
 
   const switchLoop = () => {
     if (currentPlayer) {
@@ -144,5 +173,6 @@ export const useTonejs = (instrumentalUrl: string) => {
     switchLoop,
     loop,
     initializeTone,
+    // changeInstrAudio,
   };
 };
