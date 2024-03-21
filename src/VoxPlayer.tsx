@@ -66,7 +66,7 @@ const artistsObj = {
       { name: "Freddy Mercury", id: "freddy" },
     ],
   },
-  screamshout: {
+  "scream_&_shout": {
     musicName: "Scream & Shout",
     artist: "Will.i.am & Britney Spears",
     voices: [
