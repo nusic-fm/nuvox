@@ -9,7 +9,7 @@ import {
 import { Box } from "@mui/system";
 import { useEffect, useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
-import StopRoundedIcon from "@mui/icons-material/StopRounded";
+import PauseRounded from "@mui/icons-material/PauseRounded";
 
 type Props = {};
 
@@ -50,6 +50,30 @@ const artistsObj = {
       { name: "Trump", id: "trump" },
     ],
   },
+  smells_like_teen_spirit: {
+    musicName: "Smells Like Teen Spirit",
+    artist: "Nirvana",
+    voices: [
+      { name: "Cartman", id: "cartman" },
+      { name: "Rihanna", id: "rihanna" },
+    ],
+  },
+  only_girl_in_the_world: {
+    musicName: "Only Girl In The World",
+    artist: "Rihanna",
+    voices: [
+      { name: "Cartman", id: "cartman" },
+      { name: "Freddy Mercury", id: "freddy" },
+    ],
+  },
+  screamshout: {
+    musicName: "Scream & Shout",
+    artist: "Will.i.am & Britney Spears",
+    voices: [
+      { name: "Cartman", id: "cartman" },
+      { name: "Elon Musk", id: "elonmusk" },
+    ],
+  },
 };
 
 const VoxPlayer = (props: Props) => {
@@ -58,7 +82,14 @@ const VoxPlayer = (props: Props) => {
   const [started, setStarted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [voiceLoading, setVoiceLoading] = useState(false);
-  const { playAudio, initializeTone, isTonePlaying, stopPlayer } = useTonejs();
+  const {
+    playAudio,
+    initializeTone,
+    isTonePlaying,
+    stopPlayer,
+    pausePlayer,
+    playPlayer,
+  } = useTonejs();
 
   const onSongClick = async (_id: string) => {
     setLoading(true);
@@ -141,21 +172,27 @@ const VoxPlayer = (props: Props) => {
           <IconButton
             disabled={loading || voiceLoading}
             onClick={async () => {
-              if (!started) {
-                await initializeTone();
-                setStarted(true);
+              if (isTonePlaying && artistKey === songId) {
+                pausePlayer();
+              } else if (artistKey === songId) {
+                playPlayer();
+              } else {
+                if (!started) {
+                  await initializeTone();
+                  setStarted(true);
+                }
+                if (isTonePlaying) {
+                  stopPlayer();
+                }
+                //   setSongId(artistKey);
+                onSongClick(artistKey);
               }
-              if (isTonePlaying) {
-                stopPlayer();
-              }
-              //   setSongId(artistKey);
-              onSongClick(artistKey);
             }}
           >
             {loading && artistKey === songId ? (
               <CircularProgress size={"24px"} color="secondary" />
             ) : isTonePlaying && artistKey === songId ? (
-              <StopRoundedIcon />
+              <PauseRounded />
             ) : (
               <PlayArrow />
             )}
