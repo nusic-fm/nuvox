@@ -7,9 +7,12 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
 import PauseRounded from "@mui/icons-material/PauseRounded";
+import * as Tone from "tone";
+import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
+import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
 
 type Props = {};
 
@@ -169,34 +172,46 @@ const VoxPlayer = (props: Props) => {
       {Object.entries(artistsObj).map(([artistKey, artistValue]) => (
         <Box key={artistKey} display="flex" alignItems={"center"} gap={2}>
           <Typography>{artistValue.musicName}</Typography>
-          <IconButton
-            disabled={loading || voiceLoading}
-            onClick={async () => {
-              if (isTonePlaying && artistKey === songId) {
-                pausePlayer();
-              } else if (artistKey === songId) {
-                playPlayer();
-              } else {
-                if (!started) {
-                  await initializeTone();
-                  setStarted(true);
+          <Box display={"flex"} alignItems="center">
+            <IconButton onClick={() => (Tone.Transport.seconds -= 10)}>
+              {isTonePlaying && artistKey === songId && <Replay10RoundedIcon />}
+            </IconButton>
+
+            <IconButton
+              disabled={loading || voiceLoading}
+              onClick={async () => {
+                if (isTonePlaying && artistKey === songId) {
+                  pausePlayer();
+                } else if (artistKey === songId) {
+                  playPlayer();
+                } else {
+                  if (!started) {
+                    await initializeTone();
+                    setStarted(true);
+                  }
+                  if (isTonePlaying) {
+                    stopPlayer();
+                  }
+                  //   setSongId(artistKey);
+                  onSongClick(artistKey);
                 }
-                if (isTonePlaying) {
-                  stopPlayer();
-                }
-                //   setSongId(artistKey);
-                onSongClick(artistKey);
-              }
-            }}
-          >
-            {loading && artistKey === songId ? (
-              <CircularProgress size={"24px"} color="secondary" />
-            ) : isTonePlaying && artistKey === songId ? (
-              <PauseRounded />
-            ) : (
-              <PlayArrow />
-            )}
-          </IconButton>
+              }}
+            >
+              {loading && artistKey === songId ? (
+                <CircularProgress size={"24px"} color="secondary" />
+              ) : isTonePlaying && artistKey === songId ? (
+                <PauseRounded />
+              ) : (
+                <PlayArrow />
+              )}
+            </IconButton>
+
+            <IconButton onClick={() => (Tone.Transport.seconds += 10)}>
+              {isTonePlaying && artistKey === songId && (
+                <Forward10RoundedIcon />
+              )}
+            </IconButton>
+          </Box>
           {songId === artistKey && !loading && (
             <Chip
               disabled={voiceLoading}
