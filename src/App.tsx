@@ -9,6 +9,7 @@ import {
   Alert,
   LinearProgress,
   Badge,
+  Slider,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { useEffect, useRef, useState } from "react";
@@ -131,6 +132,9 @@ const App = ({}: Props) => {
 
   const containerRef = useRef(null);
   const wavesurfer = useWavesurfer(containerRef, localCoverUrl, true);
+
+  const [vocalsPitchChange, setVocalsPitchChange] = useState(0);
+  const [wetnessLevel, setWetnessLevel] = useState(0.2);
 
   // const checkUserAccessToken = async () => {
   //   try {
@@ -374,7 +378,7 @@ const App = ({}: Props) => {
         const generateData = [
           inputSongUrl,
           _modelObj.name,
-          0,
+          vocalsPitchChange,
           false,
           1,
           0,
@@ -388,7 +392,7 @@ const App = ({}: Props) => {
           0.33,
           0,
           0.15,
-          0.2,
+          wetnessLevel,
           0.8,
           0.7,
           "mp3",
@@ -854,6 +858,41 @@ const App = ({}: Props) => {
               initializeTone={() => {}}
               playAudio={() => {}}
               vid={""}
+            />
+          </Box>
+        </Box>
+        <Box
+          display={"flex"}
+          gap={4}
+          justifyContent="center"
+          flexWrap={"wrap"}
+          mt={2}
+        >
+          <Box width={350}>
+            <Box display={"flex"} justifyContent="space-between">
+              <Typography>Pitch Change (Vocals)</Typography>
+              <Typography color={"gold"}>{vocalsPitchChange}</Typography>
+            </Box>
+            <Slider
+              marks
+              min={-3}
+              max={3}
+              step={1}
+              defaultValue={0}
+              onChange={(e, val) => setVocalsPitchChange(val as number)}
+            />
+          </Box>
+          <Box width={350}>
+            <Box display={"flex"} justifyContent="space-between">
+              <Typography>Wetness Level</Typography>
+              <Typography color={"gold"}>{wetnessLevel}</Typography>
+            </Box>
+            <Slider
+              min={0}
+              max={1}
+              step={0.01}
+              defaultValue={wetnessLevel}
+              onChange={(e, val) => setWetnessLevel(val as number)}
             />
           </Box>
         </Box>
