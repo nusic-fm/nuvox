@@ -7,18 +7,67 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import * as Tone from "tone";
 import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
 import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
+import axios from "axios";
 
 type Props = {};
+
+const voiceCredits: any = {
+  kanye: {
+    creator: "TheRealheavy",
+    rvcVersion: "v2",
+  },
+  mendes: {
+    creator: "AI-Wheelz",
+    rvcVersion: "v2",
+  },
+  trump: {
+    creator: "week old roadkill#5734",
+    rvcVersion: "v2",
+    creditRequired: true,
+  },
+  cartman: {
+    creator: "sub2rhys",
+    rvcVersion: "v2",
+  },
+  biden: {
+    creator: "week old roadkill#5734",
+    rvcVersion: "v2",
+    creditRequired: true,
+  },
+  mario: {
+    creator: "marioguy",
+  },
+  ed_sheeran: {
+    creator: "AIVERSE#5393",
+  },
+  billie_ellish: {
+    creator: "houstpen#1053",
+    rvcVersion: "v2",
+    creditRequired: true,
+  },
+  rihanna: {
+    creator: "AIVER-SE",
+  },
+  freddy: {
+    creator: "bowlql",
+    rvcVersion: "v2",
+    creditRequired: false,
+  },
+  elonmusk: {
+    creator: "anonymous12345678910",
+  },
+};
 
 const artistsObj = {
   bob_marley: {
     musicName: "Is This Love",
+    vid: "69RdQFDuYPI",
     artist: "Bob Marley",
     voices: [
       { name: "Kanye West", id: "kanye" },
@@ -27,6 +76,7 @@ const artistsObj = {
   },
   chase: {
     musicName: "Baddadan",
+    vid: "rkjNL4dX-U4",
     artist: "Chase & Status",
     voices: [
       { name: "Trump", id: "trump" },
@@ -36,6 +86,7 @@ const artistsObj = {
   },
   gangsta: {
     musicName: "Gangsta's Paradise",
+    vid: "fPO76Jlnz6c",
     artist: "Coolio",
     voices: [
       { name: "Cartman", id: "cartman" },
@@ -45,6 +96,7 @@ const artistsObj = {
   },
   miley: {
     musicName: "Flowers",
+    vid: "G7KNmW9a75Y",
     artist: "Miley Cyrus",
     voices: [
       { name: "Biden", id: "biden" },
@@ -55,6 +107,7 @@ const artistsObj = {
   },
   smells_like_teen_spirit: {
     musicName: "Smells Like Teen Spirit",
+    vid: "hTWKbfoikeg",
     artist: "Nirvana",
     voices: [
       { name: "Cartman", id: "cartman" },
@@ -63,6 +116,7 @@ const artistsObj = {
   },
   only_girl_in_the_world: {
     musicName: "Only Girl In The World",
+    vid: "pa14VNsdSYM",
     artist: "Rihanna",
     voices: [
       { name: "Cartman", id: "cartman" },
@@ -71,6 +125,7 @@ const artistsObj = {
   },
   "scream_&_shout": {
     musicName: "Scream & Shout",
+    vid: "kYtGl1dX5qI",
     artist: "Will.i.am & Britney Spears",
     voices: [
       { name: "Cartman", id: "cartman" },
@@ -93,6 +148,9 @@ const VoxPlayer = (props: Props) => {
     pausePlayer,
     playPlayer,
   } = useTonejs();
+  const [songInfoObj, setSongInfoObj] = useState<{
+    [key: string]: { title: string };
+  }>({});
 
   const onSongClick = async (_id: string) => {
     setLoading(true);
@@ -115,6 +173,28 @@ const VoxPlayer = (props: Props) => {
     setVoiceLoading(false);
   };
 
+  // const fetchYoutubeVideoInfo = async (id: string) => {
+  //   const vid = (artistsObj as any)[id]?.vid;
+  //   if (vid) {
+  //     const formData = new FormData();
+  //     formData.append("vid", vid);
+  //     const res = await axios.post(
+  //       `${import.meta.env.VITE_AUDIO_ANALYSER_PY}/ytp-content`,
+  //       formData
+  //     );
+  //     setSongInfoObj((songInfo) => ({
+  //       ...songInfo,
+  //       [id]: { title: res.data.title },
+  //     }));
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   if (songId && !songInfoObj[songId]) {
+  //     fetchYoutubeVideoInfo(songId);
+  //   }
+  // }, [songId]);
+
   //   useEffect(() => {
   //     if (songId && voice) {
   //       const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
@@ -134,7 +214,7 @@ const VoxPlayer = (props: Props) => {
   //   }, [songId]);
 
   return (
-    <Stack>
+    <Stack px={2}>
       {/* <Box display={"flex"} gap={2} alignItems="center">
         <IconButton
           disabled={started}
@@ -241,6 +321,28 @@ const VoxPlayer = (props: Props) => {
             ))}
         </Box>
       ))}
+      {/* {songId && songInfoObj[songId]?.title && (
+        <Box display={"flex"} m={4} alignItems="center" gap={2}>
+          <Typography fontWeight={900}>Song</Typography>
+          <Chip
+            label={songInfoObj[songId].title}
+            variant="outlined"
+            color="warning"
+            clickable
+            onClick={() => window.open(`youtube`)}
+          />
+        </Box>
+      )} */}
+      {voice && (
+        <Box display={"flex"} my={4} alignItems="center" gap={2}>
+          <Typography fontWeight={900}>Voice Model Creator</Typography>
+          <Chip
+            label={voiceCredits[voice].creator}
+            variant="outlined"
+            color="warning"
+          />
+        </Box>
+      )}
     </Stack>
   );
 };
