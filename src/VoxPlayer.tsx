@@ -62,6 +62,26 @@ const voiceCredits: any = {
   elonmusk: {
     creator: "anonymous12345678910",
   },
+  terminator: {
+    creator: "Hazza1",
+  },
+  arthur_morgan: {
+    creator: "@737743021612859561",
+  },
+  homer_simpson: {
+    creator: "kalomaze#2983",
+    rvcVersion: "v2",
+    creditRequired: false,
+  },
+  drake: {
+    creator: "Snoop Dogg#8709 ",
+    rvcVersion: "v1",
+    creditRequired: false,
+  },
+  morgan_freeman: {
+    creator: "CxronaBxndit",
+    rvcVersion: "v2",
+  },
 };
 
 const artistsObj = {
@@ -130,6 +150,35 @@ const artistsObj = {
     voices: [
       { name: "Cartman", id: "cartman" },
       { name: "Elon Musk", id: "elonmusk" },
+    ],
+  },
+  still_dre: {
+    musicName: "Still D.R.E.",
+    vid: "Qeem6ZVr8Ic",
+    artist: "Dr. Dre",
+    voices: [
+      { name: "Homer Simpson", id: "homer_simpson" },
+      { name: "Drake", id: "drake" },
+      { name: "Morgan Freeman", id: "morgan_freeman" },
+    ],
+  },
+  rhythm_is_a_dancer: {
+    musicName: "Rhythm Is a Dancer",
+    vid: "P-sGt5E2epc",
+    artist: "SNAP!",
+    voices: [
+      { name: "Rihanna", id: "rihanna" },
+      { name: "Cartman", id: "cartman" },
+    ],
+  },
+  duality: {
+    musicName: "Duality",
+    vid: "B2lmOei7qfk",
+    artist: "Slipknot",
+    voices: [
+      { name: "Cartman", id: "cartman" },
+      { name: "Terminator", id: "terminator" },
+      { name: "Arthur Morgan", id: "arthur_morgan" },
     ],
   },
 };
