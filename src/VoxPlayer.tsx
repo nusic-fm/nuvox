@@ -214,14 +214,14 @@ const VoxPlayer = (props: Props) => {
     return window.localStorage.getItem("KAMU_USERNAME") || "";
   });
 
-  const onSongClick = async (_id: string) => {
+  const onSongClick = async (_id: string, endTime: number) => {
     setLoading(true);
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fno_vocals.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fvocals.mp3?alt=media`;
     setVoice("");
     setSongId(_id);
-    pushLog(Math.round(Tone.Transport.seconds));
+    pushLog(endTime);
     await playAudio(_instrUrl, _audioUrl, true);
     setStartLog({
       song: _id,
@@ -351,6 +351,7 @@ const VoxPlayer = (props: Props) => {
             <IconButton
               disabled={loading || voiceLoading}
               onClick={async () => {
+                const endTime = Math.round(Tone.Transport.seconds);
                 if (isTonePlaying && artistKey === songId) {
                   pausePlayer();
                 } else if (artistKey === songId) {
@@ -364,7 +365,7 @@ const VoxPlayer = (props: Props) => {
                     stopPlayer();
                   }
                   //   setSongId(artistKey);
-                  onSongClick(artistKey);
+                  onSongClick(artistKey, endTime);
                 }
               }}
             >
@@ -442,8 +443,8 @@ const VoxPlayer = (props: Props) => {
             <TableRow>
               <TableCell align="left">Song Name</TableCell>
               <TableCell align="right">Voice</TableCell>
-              <TableCell align="right">Start Time (Seconds)</TableCell>
-              <TableCell align="right">End Time (Seconds)</TableCell>
+              <TableCell align="right">Start Time</TableCell>
+              <TableCell align="right">End Time</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -456,8 +457,8 @@ const VoxPlayer = (props: Props) => {
                   {log.song}
                 </TableCell>
                 <TableCell align="right">{log.voice}</TableCell>
-                <TableCell align="right">{log.start}</TableCell>
-                <TableCell align="right">{log.end}</TableCell>
+                <TableCell align="right">{log.start}s</TableCell>
+                <TableCell align="right">{log.end}s</TableCell>
               </TableRow>
               // <Typography>
               //   {log.song} - {log.voice} - {log.start} - {log.end}
