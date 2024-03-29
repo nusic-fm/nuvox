@@ -3,17 +3,24 @@ import {
   Chip,
   CircularProgress,
   IconButton,
+  Paper,
   Stack,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import * as Tone from "tone";
 import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
 import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
-import axios from "axios";
+import { useSession } from "./hooks/useSession";
 
 type Props = {};
 
@@ -200,6 +207,7 @@ const VoxPlayer = (props: Props) => {
   const [songInfoObj, setSongInfoObj] = useState<{
     [key: string]: { title: string };
   }>({});
+  const { logs, pushLog, setPrevSeconds, setStartLog } = useSession();
 
   const onSongClick = async (_id: string) => {
     setLoading(true);
@@ -208,8 +216,10 @@ const VoxPlayer = (props: Props) => {
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fvocals.mp3?alt=media`;
     setVoice("");
     setSongId(_id);
+    pushLog(Math.round(Tone.Transport.seconds));
     await playAudio(_instrUrl, _audioUrl, true);
-
+    setStartLog({ song: _id, voice: "original", start: 0, end: 0 });
+    setPrevSeconds(0);
     setLoading(false);
   };
 
@@ -219,6 +229,13 @@ const VoxPlayer = (props: Props) => {
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${_voiceId}.mp3?alt=media`;
     setVoice(_voiceId);
     await playAudio(_instrUrl, _audioUrl);
+    pushLog(Math.round(Tone.Transport.seconds));
+    setStartLog({
+      song: songId,
+      voice: _voiceId,
+      start: Math.round(Tone.Transport.seconds),
+      end: 0,
+    });
     setVoiceLoading(false);
   };
 
@@ -386,12 +403,43 @@ const VoxPlayer = (props: Props) => {
         <Box display={"flex"} my={4} alignItems="center" gap={2}>
           <Typography fontWeight={900}>Voice Model Creator</Typography>
           <Chip
-            label={voiceCredits[voice].creator}
+            label={voiceCredits[voice]?.creator}
             variant="outlined"
             color="warning"
           />
         </Box>
       )}
+      <Typography my={1}>Session Logs:</Typography>
+      <TableContainer component={Paper} sx={{ width: 650 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell align="left">Song Id</TableCell>
+              <TableCell align="right">Voice Id</TableCell>
+              <TableCell align="right">Start Time (Seconds)</TableCell>
+              <TableCell align="right">End Time (Seconds)</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {logs.map((log, i) => (
+              <TableRow
+                key={i}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {log.song}
+                </TableCell>
+                <TableCell align="right">{log.voice}</TableCell>
+                <TableCell align="right">{log.start}</TableCell>
+                <TableCell align="right">{log.end}</TableCell>
+              </TableRow>
+              // <Typography>
+              //   {log.song} - {log.voice} - {log.start} - {log.end}
+              // </Typography>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Stack>
   );
 };
