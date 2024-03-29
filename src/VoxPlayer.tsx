@@ -2,6 +2,7 @@ import PlayArrow from "@mui/icons-material/PlayArrow";
 import {
   Chip,
   CircularProgress,
+  Divider,
   IconButton,
   Paper,
   Stack,
@@ -11,6 +12,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
@@ -208,6 +210,9 @@ const VoxPlayer = (props: Props) => {
     [key: string]: { title: string };
   }>({});
   const { logs, pushLog, setPrevSeconds, setStartLog } = useSession();
+  const [userName, setUserName] = useState(() => {
+    return window.localStorage.getItem("KAMU_USERNAME") || "";
+  });
 
   const onSongClick = async (_id: string) => {
     setLoading(true);
@@ -218,12 +223,18 @@ const VoxPlayer = (props: Props) => {
     setSongId(_id);
     pushLog(Math.round(Tone.Transport.seconds));
     await playAudio(_instrUrl, _audioUrl, true);
-    setStartLog({ song: _id, voice: "original", start: 0, end: 0 });
+    setStartLog({
+      song: _id,
+      voice: "original",
+      start: 0,
+      end: 0,
+      userName,
+    });
     setPrevSeconds(0);
     setLoading(false);
   };
 
-  const onVoiceChange = async (_voiceId: string) => {
+  const onVoiceChange = async (_voiceId: string, artistName?: string) => {
     setVoiceLoading(true);
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${_voiceId}.mp3?alt=media`;
@@ -231,10 +242,11 @@ const VoxPlayer = (props: Props) => {
     await playAudio(_instrUrl, _audioUrl);
     pushLog(Math.round(Tone.Transport.seconds));
     setStartLog({
-      song: songId,
-      voice: _voiceId,
+      song: (artistsObj as any)[songId].musicName,
+      voice: artistName ?? "original",
       start: Math.round(Tone.Transport.seconds),
       end: 0,
+      userName,
     });
     setVoiceLoading(false);
   };
@@ -281,6 +293,19 @@ const VoxPlayer = (props: Props) => {
 
   return (
     <Stack px={2}>
+      <Box my={2}>
+        <TextField
+          size="small"
+          label="Username"
+          value={userName}
+          onChange={(e) => {
+            setUserName(e.target.value);
+            window.localStorage.setItem("KAMU_USERNAME", e.target.value);
+          }}
+          color="secondary"
+        />
+      </Box>
+      <Divider />
       {/* <Box display={"flex"} gap={2} alignItems="center">
         <IconButton
           disabled={started}
@@ -380,7 +405,7 @@ const VoxPlayer = (props: Props) => {
                 variant={voice === v.id ? "outlined" : "filled"}
                 clickable
                 onClick={() => {
-                  onVoiceChange(v.id);
+                  onVoiceChange(v.id, v.name);
                   //   setVoice(v.id);
                 }}
               />
@@ -409,13 +434,14 @@ const VoxPlayer = (props: Props) => {
           />
         </Box>
       )}
+      <Divider />
       <Typography my={1}>Session Logs:</Typography>
       <TableContainer component={Paper} sx={{ width: 650 }}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell align="left">Song Id</TableCell>
-              <TableCell align="right">Voice Id</TableCell>
+              <TableCell align="left">Song Name</TableCell>
+              <TableCell align="right">Voice</TableCell>
               <TableCell align="right">Start Time (Seconds)</TableCell>
               <TableCell align="right">End Time (Seconds)</TableCell>
             </TableRow>
