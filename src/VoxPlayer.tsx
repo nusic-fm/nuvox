@@ -224,8 +224,8 @@ const VoxPlayer = (props: Props) => {
     pushLog(endTime);
     await playAudio(_instrUrl, _audioUrl, true);
     setStartLog({
-      song: _id,
-      voice: "original",
+      song: (artistsObj as any)[_id].musicName,
+      voice: (artistsObj as any)[_id].artist,
       start: 0,
       end: 0,
       userName,
@@ -234,7 +234,7 @@ const VoxPlayer = (props: Props) => {
     setLoading(false);
   };
 
-  const onVoiceChange = async (_voiceId: string, artistName?: string) => {
+  const onVoiceChange = async (_voiceId: string, artistName: string) => {
     setVoiceLoading(true);
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${_voiceId}.mp3?alt=media`;
@@ -243,7 +243,7 @@ const VoxPlayer = (props: Props) => {
     pushLog(Math.round(Tone.Transport.seconds));
     setStartLog({
       song: (artistsObj as any)[songId].musicName,
-      voice: artistName ?? "original",
+      voice: artistName,
       start: Math.round(Tone.Transport.seconds),
       end: 0,
       userName,
@@ -391,7 +391,7 @@ const VoxPlayer = (props: Props) => {
               variant={voice === "vocals" || !voice ? "outlined" : "filled"}
               clickable
               onClick={() => {
-                onVoiceChange("vocals");
+                onVoiceChange("vocals", artistValue.artist);
                 // setVoice("vocals");
               }}
             />
