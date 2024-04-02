@@ -34,7 +34,11 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import { getSpaceId } from "./helpers/hf";
 import { useHfClient } from "./hooks/useHf";
 import Settings from "./components/Settings";
+// import { LensClient, development } from "@lens-protocol/client";
 
+// const lensClient = new LensClient({
+//   environment: development,
+// });
 type Props = {};
 
 export const GPU_SPACE_ID = "nusic-voice-cover";
@@ -51,6 +55,11 @@ export const voiceCoverLinks = [
 ];
 
 export type HardwareInfo = { machineType: string; sleepTime: number };
+
+const CHOICES_FN_IDX = 5;
+const DOWNLOAD_MODEL_FN_IDX = 8 || 11;
+const UPLOAD_MODEL_FN_IDX = 15 || 18;
+const GENERATE_FN_IDX = 6;
 
 const App = ({}: Props) => {
   const [showAccountSetup, setShowAccountSetup] = useState(false);
@@ -179,11 +188,12 @@ const App = ({}: Props) => {
           );
         }
       }
-      if (spaceId === GPU_SPACE_ID) {
-        setGpuSpaceAvailable(true);
-      } else if (spaceId === CPU_SPACE_ID) {
-        setCpuSpaceAvailable(true);
-      }
+      setCpuSpaceAvailable(true);
+      // if (spaceId === GPU_SPACE_ID) {
+      //   setGpuSpaceAvailable(true);
+      // } else if (spaceId === CPU_SPACE_ID) {
+      //   setCpuSpaceAvailable(true);
+      // }
       // setAccountSetupSteps(2);
     } catch (e) {
       setErrorSnackbarMessage("Space is not found, duplicate one");
@@ -199,7 +209,7 @@ const App = ({}: Props) => {
     const _client = await client(getSpaceId(userName, spaceId), {
       hf_token: hfToken as `hf_${string}`,
     });
-    const choicesSubmit = _client.submit(5, []);
+    const choicesSubmit = _client.submit(CHOICES_FN_IDX, []);
     try {
       const choices = await new Promise((res, rej) => {
         choicesSubmit.on("status", (status) => {
@@ -337,7 +347,9 @@ const App = ({}: Props) => {
       );
       if (choiceIdx === -1) {
         try {
-          const methodFnIdx = _modelObj.uploadFilePath ? 15 : 8;
+          const methodFnIdx = _modelObj.uploadFilePath
+            ? UPLOAD_MODEL_FN_IDX
+            : DOWNLOAD_MODEL_FN_IDX;
           const _urlData = _modelObj.uploadFilePath
             ? {
                 data: _modelObj.fullUploadedUrl,
@@ -403,7 +415,7 @@ const App = ({}: Props) => {
         //   (genResult as any).data[0].name
         // }`;
         // setCoverUrl(audioUrl);
-        const submitData = app.submit(6, generateData);
+        const submitData = app.submit(GENERATE_FN_IDX, generateData);
         submitData.on("data", async (event) => {
           if (event.data.length) {
             const fileData = event.data[0] as any;
@@ -708,12 +720,23 @@ const App = ({}: Props) => {
   return (
     <Box px={{ xs: "5%", md: "10%", lg: "13%" }}>
       <Stack alignItems={"center"} pt={3} pb={6} gap={2}>
-        <Box>
-          <Box display="flex" justifyContent={"center"} mb={1}>
-            <img src="/nusic_purple.png" width={155} alt="" />
-          </Box>
-          <Typography variant="body2">Unlocking AI Music</Typography>
-        </Box>
+        {/* <Box>
+            <Box display="flex" justifyContent={"center"} mb={1}>
+              <img src="/nusic_purple.png" width={155} alt="" />
+            </Box>
+            <Typography variant="body2">Unlocking AI Music</Typography>
+          </Box> */}
+        {/* <Button
+          onClick={async () => {
+            const { id, text } =
+              await lensClient.authentication.generateChallenge({
+                signedBy: "0x07C920eA4A1aa50c8bE40c910d7c4981D135272B", // e.g "0xdfd7D26fd33473F475b57556118F8251464a24eb"", // e.g "0x01"
+              });
+            debugger;
+          }}
+        >
+          Connect
+        </Button> */}
         <Badge badgeContent={!!settingsAlert ? "!" : 0} color="warning">
           <Chip
             clickable

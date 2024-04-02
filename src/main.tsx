@@ -14,19 +14,41 @@ import {
 import App from "./App";
 import DecodeHash from "./DecodeHash";
 import VoxPlayer from "./VoxPlayer";
+import SyncLedger from "./SyncLedger";
+import WithNavbar from "./components/WithNavBar";
 
 const router = createHashRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <WithNavbar>
+        <App />
+      </WithNavbar>
+    ),
   },
   {
     path: "/decode",
-    element: <DecodeHash />,
+    element: (
+      <WithNavbar>
+        <DecodeHash />
+      </WithNavbar>
+    ),
   },
   {
     path: "/player",
-    element: <VoxPlayer />,
+    element: (
+      <WithNavbar>
+        <VoxPlayer />
+      </WithNavbar>
+    ),
+  },
+  {
+    path: "/sync-ledger",
+    element: (
+      <WithNavbar>
+        <SyncLedger />
+      </WithNavbar>
+    ),
   },
 ]);
 
