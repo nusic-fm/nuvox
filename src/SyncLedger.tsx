@@ -22,7 +22,7 @@ const songs = [
     bmi: 0,
     iswc: "T0700817884",
     writers: ["MARLEY BOB"],
-    workId: 390330131,
+    workId: "390330131",
     publishers: ["56 Hope road music limited", "Primary wave/blue mountain"],
     img: "isthislove.jpg",
   },
@@ -41,7 +41,7 @@ const songs = [
       "TENDAYI TAKURA",
       "VEIRA MARC ANTHONY",
     ],
-    workId: 921273242,
+    workId: "921273242",
     publishers: ["CONCORD ALTO CC1", "CONCORD CM UK LIMITED"],
     img: "baddadan.jpeg",
   },
@@ -56,7 +56,7 @@ const songs = [
       "SANDERS LARRY JAMES",
       "WONDER STEVIE",
     ],
-    workId: 2035231,
+    workId: "2035231",
     publishers: [
       "MADCASTLE MUZIC",
       "UNIVERSAL SONGS OF POLYGRAM INTERNATIONAL INC",
@@ -69,7 +69,7 @@ const songs = [
     bmi: 100,
     iswc: "T3150688334",
     writers: ["CYRUS MILEY RAY", "HEIN GREG ALDAE", "POLLACK MICHAEL ROSS"],
-    workId: 59897816,
+    workId: "59897816",
     publishers: [
       "DROOG PUBLISHING",
       "MCEO PUBLISHING",
@@ -88,7 +88,7 @@ const songs = [
     bmi: 25,
     iswc: "T0702436916",
     writers: ["COBAIN KURT D", "GROHL DAVID ERIC", "NOVOSELIC KRIST ANTHONY"],
-    workId: 1358504,
+    workId: "1358504",
     publishers: ["MJ TWELVE MUSIC", "MURKY SLOUGH MUSIC"],
     img: "smells.jpeg",
   },
@@ -126,7 +126,7 @@ const songs = [
       "KOUAME JEAN BAPTISTE",
       "MARTENS JEF",
     ],
-    workId: 884800945,
+    workId: "884800945",
     publishers: [
       "BMG SAPPHIRE SONGS",
       "I AM COMPOSING LLC",
@@ -147,7 +147,7 @@ const songs = [
       "STORCH SCOTT SPENCER",
       "YOUNG ANDRE ROMELL",
     ],
-    workId: 491066487,
+    workId: "491066487",
     publishers: [
       "LIL LU LU PUBLISHING",
       "MELVIN BRADFORD MUSIC",
@@ -162,7 +162,7 @@ const songs = [
     bmi: 25,
     iswc: "T8009529969",
     writers: ["ANZILOTTI LUCA", "AUSTIN THEA", "MUENZING MICHAEL"],
-    workId: 1773214,
+    workId: "1773214",
     publishers: ["SONGS OF LOGIC EDITION", "UNIVERSAL MUSIC CAREERS"],
     img: "rhythm.jpg",
   },
@@ -182,17 +182,39 @@ const songs = [
       "THOMSON MICKAEL G",
       "WILSON SIDNEY GEORGE",
     ],
-    workId: 341101033,
+    workId: "341101033",
     publishers: ["EMI APRIL MUSIC INC", "MUSIC THAT MUSIC"],
     img: "duality.jpg",
   },
 ];
 
+type ISONG = {
+  name: string;
+  ascap: number;
+  bmi: number;
+  iswc: string;
+  writers: string[];
+  workId: string;
+  publishers: string[];
+  img: string;
+};
+
 const SyncLedger = (props: Props) => {
-  const [songIdx, setSongIdx] = useState(-1);
+  const [selectedSong, setSelectedSong] = useState<ISONG>();
   const [role, setRole] = useState(-1);
   const [subRole, setSubRole] = useState(-1);
+  const [availableSongs, setAvailableSongs] = useState<ISONG[]>([]);
   const [name, setName] = useState("");
+
+  const onNameChange = (e: any) => {
+    if ("ascap" === e.target.value.toLowerCase()) {
+      setAvailableSongs(songs.filter((s) => s.ascap));
+    } else if ("bmi" === e.target.value.toLowerCase()) {
+      setAvailableSongs(songs.filter((s) => s.bmi));
+    } else {
+      setAvailableSongs([]);
+    }
+  };
 
   return (
     <Stack spacing={4} px={"5%"}>
@@ -244,7 +266,12 @@ const SyncLedger = (props: Props) => {
         </Box>
         {role === 0 && (
           <Box width={415}>
-            <TextField fullWidth size="small"></TextField>
+            <TextField
+              label="Name"
+              fullWidth
+              size="small"
+              onChange={onNameChange}
+            ></TextField>
           </Box>
         )}
       </Stack>
@@ -258,30 +285,30 @@ const SyncLedger = (props: Props) => {
           <Typography pl={1}>Available Voice Covers</Typography>
         </Stack>
       )}
-      {songIdx >= 0 ? (
+      {!!selectedSong ? (
         <Stack gap={2}>
           <Box display={"flex"} justifyContent="start">
-            <IconButton onClick={() => setSongIdx(-1)}>
+            <IconButton onClick={() => setSelectedSong(undefined)}>
               <ArrowBackRoundedIcon />
             </IconButton>
           </Box>
           <Box display={"flex"} gap={2}>
             <img
               width={180}
-              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${songs[songIdx].img}?alt=media`}
+              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${selectedSong.img}?alt=media`}
               alt=""
             />
             <Box display={"flex"} justifyContent="space-around" gap={4}>
               <Stack gap={2}>
-                <Typography>ISWC: {songs[songIdx].iswc}</Typography>
+                <Typography>ISWC: {selectedSong.iswc}</Typography>
                 <Typography>
-                  Writers: {songs[songIdx].writers.join(", ")}
+                  Writers: {selectedSong.writers.join(", ")}
                 </Typography>
               </Stack>
               <Stack gap={2}>
-                <Typography>Work ID: {songs[songIdx].workId}</Typography>
+                <Typography>Work ID: {selectedSong.workId}</Typography>
                 <Typography>
-                  Publishers: {songs[songIdx].publishers.join(", ")}
+                  Publishers: {selectedSong.publishers.join(", ")}
                 </Typography>
               </Stack>
             </Box>
@@ -292,8 +319,11 @@ const SyncLedger = (props: Props) => {
           <Stack>
             <Typography pl={1}>Available Songs</Typography>
             <Box mt={2} display="flex" flexWrap={"wrap"} gap={2}>
-              {songs.map((song, i) => (
-                <IconButton key={song.name} onClick={() => setSongIdx(i)}>
+              {availableSongs.map((song, i) => (
+                <IconButton
+                  key={song.name}
+                  onClick={() => setSelectedSong(song)}
+                >
                   <img
                     width={180}
                     src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${song.img}?alt=media`}
