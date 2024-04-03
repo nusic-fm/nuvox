@@ -102,6 +102,7 @@ const artistsObj = {
       { name: "Kanye West", id: "kanye" },
       { name: "Shawn Mendes", id: "mendes" },
     ],
+    img: "isthislove.jpg",
   },
   chase: {
     musicName: "Baddadan",
@@ -112,6 +113,7 @@ const artistsObj = {
       { name: "Cartman", id: "cartman" },
       { name: "Biden", id: "biden" },
     ],
+    img: "baddadan.jpeg",
   },
   gangsta: {
     musicName: "Gangsta's Paradise",
@@ -122,6 +124,7 @@ const artistsObj = {
       { name: "Mario", id: "mario" },
       { name: "Ed Sheeran", id: "ed_sheeran" },
     ],
+    img: "gangsta.jpg",
   },
   miley: {
     musicName: "Flowers",
@@ -133,6 +136,7 @@ const artistsObj = {
       { name: "Cartman", id: "cartman" },
       { name: "Trump", id: "trump" },
     ],
+    img: "flowers.webp",
   },
   smells_like_teen_spirit: {
     musicName: "Smells Like Teen Spirit",
@@ -142,6 +146,7 @@ const artistsObj = {
       { name: "Cartman", id: "cartman" },
       { name: "Rihanna", id: "rihanna" },
     ],
+    img: "smells.jpeg",
   },
   only_girl_in_the_world: {
     musicName: "Only Girl In The World",
@@ -151,6 +156,7 @@ const artistsObj = {
       { name: "Cartman", id: "cartman" },
       { name: "Freddy Mercury", id: "freddy" },
     ],
+    img: "onlygirl.png",
   },
   "scream_&_shout": {
     musicName: "Scream & Shout",
@@ -160,6 +166,7 @@ const artistsObj = {
       { name: "Cartman", id: "cartman" },
       { name: "Elon Musk", id: "elonmusk" },
     ],
+    img: "scream.png",
   },
   still_dre: {
     musicName: "Still D.R.E.",
@@ -170,6 +177,7 @@ const artistsObj = {
       { name: "Drake", id: "drake" },
       { name: "Morgan Freeman", id: "morgan_freeman" },
     ],
+    img: "drdre.jpeg",
   },
   rhythm_is_a_dancer: {
     musicName: "Rhythm Is a Dancer",
@@ -179,6 +187,7 @@ const artistsObj = {
       { name: "Rihanna", id: "rihanna" },
       { name: "Cartman", id: "cartman" },
     ],
+    img: "rhythm.jpg",
   },
   duality: {
     musicName: "Duality",
@@ -189,6 +198,7 @@ const artistsObj = {
       { name: "Terminator", id: "terminator" },
       { name: "Arthur Morgan", id: "arthur_morgan" },
     ],
+    img: "duality.jpg",
   },
 };
 
@@ -339,80 +349,89 @@ const VoxPlayer = (props: Props) => {
         //   variant={artist === "cartman" ? "outlined" : "filled"}
         />
       </Box> */}
-
-      {Object.entries(artistsObj).map(([artistKey, artistValue]) => (
-        <Box key={artistKey} display="flex" alignItems={"center"} gap={2}>
-          <Typography>{artistValue.musicName}</Typography>
-          <Box display={"flex"} alignItems="center">
-            <IconButton onClick={() => (Tone.Transport.seconds -= 10)}>
-              {isTonePlaying && artistKey === songId && <Replay10RoundedIcon />}
-            </IconButton>
-
-            <IconButton
-              disabled={loading || voiceLoading}
-              onClick={async () => {
-                const endTime = Math.round(Tone.Transport.seconds);
-                if (isTonePlaying && artistKey === songId) {
-                  pausePlayer();
-                } else if (artistKey === songId) {
-                  playPlayer();
-                } else {
-                  if (!started) {
-                    await initializeTone();
-                    setStarted(true);
-                  }
-                  if (isTonePlaying) {
-                    stopPlayer();
-                  }
-                  //   setSongId(artistKey);
-                  onSongClick(artistKey, endTime);
-                }
-              }}
-            >
-              {loading && artistKey === songId ? (
-                <CircularProgress size={"24px"} color="secondary" />
-              ) : isTonePlaying && artistKey === songId ? (
-                <PauseRounded />
-              ) : (
-                <PlayArrow />
-              )}
-            </IconButton>
-
-            <IconButton onClick={() => (Tone.Transport.seconds += 10)}>
-              {isTonePlaying && artistKey === songId && (
-                <Forward10RoundedIcon />
-              )}
-            </IconButton>
-          </Box>
-          {songId === artistKey && !loading && (
-            <Chip
-              disabled={voiceLoading}
-              label={artistValue.artist}
-              variant={voice === "vocals" || !voice ? "outlined" : "filled"}
-              clickable
-              onClick={() => {
-                onVoiceChange("vocals", artistValue.artist);
-                // setVoice("vocals");
-              }}
+      <Stack gap={2} py={2}>
+        {Object.entries(artistsObj).map(([artistKey, artistValue]) => (
+          <Box key={artistKey} display="flex" alignItems={"center"} gap={2}>
+            <img
+              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${artistValue.img}?alt=media`}
+              alt=""
+              width={40}
+              style={{ borderRadius: "50%" }}
             />
-          )}
-          {songId === artistKey &&
-            !loading &&
-            artistValue.voices.map((v, i) => (
+            <Typography>{artistValue.musicName}</Typography>
+            <Box display={"flex"} alignItems="center">
+              <IconButton onClick={() => (Tone.Transport.seconds -= 10)}>
+                {isTonePlaying && artistKey === songId && (
+                  <Replay10RoundedIcon />
+                )}
+              </IconButton>
+
+              <IconButton
+                disabled={loading || voiceLoading}
+                onClick={async () => {
+                  const endTime = Math.round(Tone.Transport.seconds);
+                  if (isTonePlaying && artistKey === songId) {
+                    pausePlayer();
+                  } else if (artistKey === songId) {
+                    playPlayer();
+                  } else {
+                    if (!started) {
+                      await initializeTone();
+                      setStarted(true);
+                    }
+                    if (isTonePlaying) {
+                      stopPlayer();
+                    }
+                    //   setSongId(artistKey);
+                    onSongClick(artistKey, endTime);
+                  }
+                }}
+              >
+                {loading && artistKey === songId ? (
+                  <CircularProgress size={"24px"} color="secondary" />
+                ) : isTonePlaying && artistKey === songId ? (
+                  <PauseRounded />
+                ) : (
+                  <PlayArrow />
+                )}
+              </IconButton>
+
+              <IconButton onClick={() => (Tone.Transport.seconds += 10)}>
+                {isTonePlaying && artistKey === songId && (
+                  <Forward10RoundedIcon />
+                )}
+              </IconButton>
+            </Box>
+            {songId === artistKey && !loading && (
               <Chip
                 disabled={voiceLoading}
-                key={v.name}
-                label={v.name}
-                variant={voice === v.id ? "outlined" : "filled"}
+                label={artistValue.artist}
+                variant={voice === "vocals" || !voice ? "outlined" : "filled"}
                 clickable
                 onClick={() => {
-                  onVoiceChange(v.id, v.name);
-                  //   setVoice(v.id);
+                  onVoiceChange("vocals", artistValue.artist);
+                  // setVoice("vocals");
                 }}
               />
-            ))}
-        </Box>
-      ))}
+            )}
+            {songId === artistKey &&
+              !loading &&
+              artistValue.voices.map((v, i) => (
+                <Chip
+                  disabled={voiceLoading}
+                  key={v.name}
+                  label={v.name}
+                  variant={voice === v.id ? "outlined" : "filled"}
+                  clickable
+                  onClick={() => {
+                    onVoiceChange(v.id, v.name);
+                    //   setVoice(v.id);
+                  }}
+                />
+              ))}
+          </Box>
+        ))}
+      </Stack>
       {/* {songId && songInfoObj[songId]?.title && (
         <Box display={"flex"} m={4} alignItems="center" gap={2}>
           <Typography fontWeight={900}>Song</Typography>
