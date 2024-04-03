@@ -8,6 +8,7 @@ import {
   FormControl,
   InputLabel,
   IconButton,
+  Button,
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useState } from "react";
@@ -18,8 +19,9 @@ type Props = {};
 const songs = [
   {
     name: "Is This Love",
-    ascap: 50,
+    ascap: 100,
     bmi: 0,
+    splits: { writers: [50], publishers: [50] },
     iswc: "T0700817884",
     writers: ["MARLEY BOB"],
     workId: "390330131",
@@ -28,8 +30,9 @@ const songs = [
   },
   {
     name: "Baddadan",
-    ascap: 45,
+    ascap: 90.84,
     bmi: 0,
+    splits: { writers: [45.84], publishers: [45] },
     iswc: "T3201051943",
     writers: [
       "BOUGUENNA AMINE",
@@ -48,7 +51,8 @@ const songs = [
   {
     name: "Gangsta's Paradise",
     ascap: 0,
-    bmi: 8.34,
+    bmi: 100,
+    splits: { writers: [0, 50], publishers: [0, 50] },
     iswc: "T0711828339",
     writers: [
       "IVEY ARTIS L JR",
@@ -67,6 +71,7 @@ const songs = [
     name: "Flowers",
     ascap: 0,
     bmi: 100,
+    splits: { writers: [0, 50], publishers: [0, 50] },
     iswc: "T3150688334",
     writers: ["CYRUS MILEY RAY", "HEIN GREG ALDAE", "POLLACK MICHAEL ROSS"],
     workId: "59897816",
@@ -86,6 +91,7 @@ const songs = [
     name: "Smells Like Teen Spirit",
     ascap: 0,
     bmi: 25,
+    splits: { writers: [0, 12.5], publishers: [0, 12.5] },
     iswc: "T0702436916",
     writers: ["COBAIN KURT D", "GROHL DAVID ERIC", "NOVOSELIC KRIST ANTHONY"],
     workId: "1358504",
@@ -94,8 +100,9 @@ const songs = [
   },
   {
     name: "Only Girl In The World",
-    ascap: 18.33,
-    bmi: 81.68,
+    ascap: 81.68,
+    bmi: 18.33,
+    splits: { writers: [40.84, 9.16], publishers: [40.84, 9.17] },
     iswc: "T9056795961",
     writers: [
       "ERIKSEN MIKKEL STORLEER",
@@ -117,8 +124,9 @@ const songs = [
   },
   {
     name: "Scream & Shout",
-    ascap: 33,
-    bmi: 17,
+    ascap: 66,
+    bmi: 34,
+    splits: { writers: [33, 17], publishers: [33, 17] },
     iswc: "T9149746827",
     writers: [
       "ADAMS WILL",
@@ -138,8 +146,9 @@ const songs = [
   },
   {
     name: "Still D.R.E.",
-    ascap: 50,
+    ascap: 100,
     bmi: 0,
+    splits: { writers: [50], publishers: [50] },
     iswc: "T0711885630",
     writers: [
       "BRADFORD MELVIN CHARLES",
@@ -160,6 +169,7 @@ const songs = [
     name: "Rhythm Is a Dancer",
     ascap: 0,
     bmi: 25,
+    splits: { writers: [0, 12.5], publishers: [0, 12.5] },
     iswc: "T8009529969",
     writers: ["ANZILOTTI LUCA", "AUSTIN THEA", "MUENZING MICHAEL"],
     workId: "1773214",
@@ -169,7 +179,8 @@ const songs = [
   {
     name: "Duality",
     ascap: 100,
-    bmi: 100,
+    bmi: 0,
+    splits: { writers: [50], publishers: [50] },
     iswc: "T0719641312",
     writers: [
       "CRAHAN MICHAEL SHAWN",
@@ -197,6 +208,7 @@ type ISONG = {
   workId: string;
   publishers: string[];
   img: string;
+  splits: { writers: number[]; publishers: number[] };
 };
 
 const SyncLedger = (props: Props) => {
@@ -212,6 +224,7 @@ const SyncLedger = (props: Props) => {
     } else if ("bmi" === e.target.value.toLowerCase()) {
       setAvailableSongs(songs.filter((s) => s.bmi));
     } else {
+      setSelectedSong(undefined);
       setAvailableSongs([]);
     }
   };
@@ -304,12 +317,40 @@ const SyncLedger = (props: Props) => {
                 <Typography>
                   Writers: {selectedSong.writers.join(", ")}
                 </Typography>
+                <Box>
+                  {!!selectedSong.splits.writers[0] && (
+                    <Button color="info" variant="outlined">
+                      Ascap: {selectedSong.splits.writers[0]}%
+                    </Button>
+                  )}
+                </Box>
+                <Box>
+                  {selectedSong.splits.writers[1] && (
+                    <Button color="info" variant="outlined">
+                      Bmi: {selectedSong.splits.writers[1]}%
+                    </Button>
+                  )}
+                </Box>
               </Stack>
               <Stack gap={2}>
                 <Typography>Work ID: {selectedSong.workId}</Typography>
                 <Typography>
                   Publishers: {selectedSong.publishers.join(", ")}
                 </Typography>
+                <Box>
+                  {!!selectedSong.splits.writers[0] && (
+                    <Button color="info" variant="outlined">
+                      Ascap: {selectedSong.splits.publishers[0]}%
+                    </Button>
+                  )}
+                </Box>
+                <Box>
+                  {selectedSong.splits.writers[1] && (
+                    <Button color="info" variant="outlined">
+                      Bmi: {selectedSong.splits.writers[1]}%
+                    </Button>
+                  )}
+                </Box>
               </Stack>
             </Box>
           </Box>
