@@ -20,9 +20,10 @@ import { useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import * as Tone from "tone";
-import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
-import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
+// import Replay10RoundedIcon from "@mui/icons-material/Replay10Rounded";
+// import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
 import { useSession } from "./hooks/useSession";
+import { useGlobalState } from "./main";
 
 type Props = {};
 
@@ -93,7 +94,15 @@ const voiceCredits: any = {
   },
 };
 
-const artistsObj = {
+const artistsObj: {
+  [key: string]: {
+    musicName: string;
+    vid: string;
+    artist: string;
+    voices: { name: string; id: string }[];
+    img: string;
+  };
+} = {
   bob_marley: {
     musicName: "Is This Love",
     vid: "69RdQFDuYPI",
@@ -203,53 +212,87 @@ const artistsObj = {
 };
 
 const VoxPlayer = (props: Props) => {
-  const [songId, setSongId] = useState("");
-  const [voice, setVoice] = useState("");
+  // const [songId, setSongId] = useState("");
+  // const [voice, setVoice] = useState("");
   const [started, setStarted] = useState(false);
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [voiceLoading, setVoiceLoading] = useState(false);
+  // const {
+  //   playAudio,
+  //   initializeTone,
+  //   isTonePlaying,
+  //   stopPlayer,
+  //   pausePlayer,
+  //   playPlayer,
+  // } = useTonejs();
+  // const [songInfoObj, setSongInfoObj] = useState<{
+  //   [key: string]: { title: string };
+  // }>({});
+  const { logs, pushLog, setPrevSeconds, setStartLog } = useSession();
+  const [userName, setUserName] = useState(() => {
+    return window.localStorage.getItem("KAMU_USERNAME") || "";
+  });
   const {
-    playAudio,
+    updateGlobalState,
+    songId,
     initializeTone,
     isTonePlaying,
     stopPlayer,
     pausePlayer,
     playPlayer,
-  } = useTonejs();
-  const [songInfoObj, setSongInfoObj] = useState<{
-    [key: string]: { title: string };
-  }>({});
-  const { logs, pushLog, setPrevSeconds, setStartLog } = useSession();
-  const [userName, setUserName] = useState(() => {
-    return window.localStorage.getItem("KAMU_USERNAME") || "";
-  });
+    voice,
+    loading,
+  } = useGlobalState();
 
   const onSongClick = async (_id: string, endTime: number) => {
-    setLoading(true);
+    // setLoading(true);
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fno_vocals.mp3?alt=media`;
     //   const firstVoice = (artistsObj as any)[songId].voices[0].id;
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fvocals.mp3?alt=media`;
-    setVoice("");
-    setSongId(_id);
+    // setVoice("");
+    // setSongId(_id);
     pushLog(endTime);
-    await playAudio(_instrUrl, _audioUrl, true);
+    // await playAudio(_instrUrl, _audioUrl, true);
+    // if (globalStateHook?.updateGlobalState) {
+    await updateGlobalState({
+      songImg: artistsObj[_id].img,
+      songName: artistsObj[_id].musicName,
+      songInstrUrl: _instrUrl,
+      coverVocalsUrl: _audioUrl,
+      fromStart: true,
+      voices: artistsObj[_id].voices,
+      songId: _id,
+    });
+    // }
     setStartLog({
-      song: (artistsObj as any)[_id].musicName,
-      voice: (artistsObj as any)[_id].artist,
+      song: artistsObj[_id].musicName,
+      voice: artistsObj[_id].artist,
       start: 0,
       end: 0,
       userName,
     });
     setPrevSeconds(0);
-    setLoading(false);
+    // setLoading(false);
   };
 
   const onVoiceChange = async (_voiceId: string, artistName: string) => {
     setVoiceLoading(true);
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2Fno_vocals.mp3?alt=media`;
     const _audioUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${songId}%2F${_voiceId}.mp3?alt=media`;
-    setVoice(_voiceId);
-    await playAudio(_instrUrl, _audioUrl);
+    // setVoice(_voiceId);
+    // await playAudio(_instrUrl, _audioUrl);
+    // if (globalStateHook?.updateGlobalState) {
+    await updateGlobalState({
+      songImg: artistsObj[songId].img,
+      songName: artistsObj[songId].musicName,
+      songInstrUrl: _instrUrl,
+      coverVocalsUrl: _audioUrl,
+      fromStart: false,
+      voices: artistsObj[songId].voices,
+      songId,
+      voiceId: _voiceId,
+    });
+    // }
     pushLog(Math.round(Tone.Transport.seconds));
     setStartLog({
       song: (artistsObj as any)[songId].musicName,
@@ -352,19 +395,12 @@ const VoxPlayer = (props: Props) => {
       <Stack gap={2} py={2}>
         {Object.entries(artistsObj).map(([artistKey, artistValue]) => (
           <Box key={artistKey} display="flex" alignItems={"center"} gap={2}>
-            <img
-              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${artistValue.img}?alt=media`}
-              alt=""
-              width={40}
-              style={{ borderRadius: "50%" }}
-            />
-            <Typography>{artistValue.musicName}</Typography>
             <Box display={"flex"} alignItems="center">
-              <IconButton onClick={() => (Tone.Transport.seconds -= 10)}>
+              {/* <IconButton onClick={() => (Tone.Transport.seconds -= 10)}>
                 {isTonePlaying && artistKey === songId && (
                   <Replay10RoundedIcon />
                 )}
-              </IconButton>
+              </IconButton> */}
 
               <IconButton
                 disabled={loading || voiceLoading}
@@ -396,12 +432,19 @@ const VoxPlayer = (props: Props) => {
                 )}
               </IconButton>
 
-              <IconButton onClick={() => (Tone.Transport.seconds += 10)}>
+              {/* <IconButton onClick={() => (Tone.Transport.seconds += 10)}>
                 {isTonePlaying && artistKey === songId && (
                   <Forward10RoundedIcon />
                 )}
-              </IconButton>
+              </IconButton> */}
             </Box>
+            <img
+              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${artistValue.img}?alt=media`}
+              alt=""
+              width={40}
+              style={{ borderRadius: "50%" }}
+            />
+            <Typography>{artistValue.musicName}</Typography>
             {songId === artistKey && !loading && (
               <Chip
                 disabled={voiceLoading}
