@@ -34,11 +34,7 @@ import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import { getSpaceId } from "./helpers/hf";
 import { useHfClient } from "./hooks/useHf";
 import Settings from "./components/Settings";
-// import { LensClient, development } from "@lens-protocol/client";
 
-// const lensClient = new LensClient({
-//   environment: development,
-// });
 type Props = {};
 
 export const GPU_SPACE_ID = "nusic-voice-cover";
@@ -726,17 +722,6 @@ const App = ({}: Props) => {
             </Box>
             <Typography variant="body2">Unlocking AI Music</Typography>
           </Box> */}
-        {/* <Button
-          onClick={async () => {
-            const { id, text } =
-              await lensClient.authentication.generateChallenge({
-                signedBy: "0x07C920eA4A1aa50c8bE40c910d7c4981D135272B", // e.g "0xdfd7D26fd33473F475b57556118F8251464a24eb"", // e.g "0x01"
-              });
-            debugger;
-          }}
-        >
-          Connect
-        </Button> */}
         <Badge badgeContent={!!settingsAlert ? "!" : 0} color="warning">
           <Chip
             clickable

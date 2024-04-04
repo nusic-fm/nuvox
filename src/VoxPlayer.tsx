@@ -1,10 +1,12 @@
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import {
+  Avatar,
   Chip,
   CircularProgress,
   Divider,
   IconButton,
   Paper,
+  Popover,
   Stack,
   Table,
   TableBody,
@@ -101,6 +103,7 @@ const artistsObj: {
     artist: string;
     voices: { name: string; id: string }[];
     img: string;
+    createdInfo: { name: string; id: string; img: string };
   };
 } = {
   bob_marley: {
@@ -112,6 +115,7 @@ const artistsObj: {
       { name: "Shawn Mendes", id: "mendes" },
     ],
     img: "isthislove.jpg",
+    createdInfo: { name: "Saulgoodman", id: "1", img: "1.webp" },
   },
   chase: {
     musicName: "Baddadan",
@@ -123,6 +127,7 @@ const artistsObj: {
       { name: "Biden", id: "biden" },
     ],
     img: "baddadan.jpeg",
+    createdInfo: { name: "Heisenberg", id: "2", img: "2.webp" },
   },
   gangsta: {
     musicName: "Gangsta's Paradise",
@@ -134,6 +139,7 @@ const artistsObj: {
       { name: "Ed Sheeran", id: "ed_sheeran" },
     ],
     img: "gangsta.jpg",
+    createdInfo: { name: "Barry Allen", id: "3", img: "3.webp" },
   },
   miley: {
     musicName: "Flowers",
@@ -146,6 +152,7 @@ const artistsObj: {
       { name: "Trump", id: "trump" },
     ],
     img: "flowers.webp",
+    createdInfo: { name: "Lorem Ipsum", id: "4", img: "4.webp" },
   },
   smells_like_teen_spirit: {
     musicName: "Smells Like Teen Spirit",
@@ -156,6 +163,7 @@ const artistsObj: {
       { name: "Rihanna", id: "rihanna" },
     ],
     img: "smells.jpeg",
+    createdInfo: { name: "Ghost", id: "5", img: "5.webp" },
   },
   only_girl_in_the_world: {
     musicName: "Only Girl In The World",
@@ -166,6 +174,7 @@ const artistsObj: {
       { name: "Freddy Mercury", id: "freddy" },
     ],
     img: "onlygirl.png",
+    createdInfo: { name: "Test", id: "6", img: "6.webp" },
   },
   "scream_&_shout": {
     musicName: "Scream & Shout",
@@ -176,6 +185,7 @@ const artistsObj: {
       { name: "Elon Musk", id: "elonmusk" },
     ],
     img: "scream.png",
+    createdInfo: { name: "Saulgoodman", id: "7", img: "7.webp" },
   },
   still_dre: {
     musicName: "Still D.R.E.",
@@ -187,6 +197,7 @@ const artistsObj: {
       { name: "Morgan Freeman", id: "morgan_freeman" },
     ],
     img: "drdre.jpeg",
+    createdInfo: { name: "Saulgoodman", id: "8", img: "8.webp" },
   },
   rhythm_is_a_dancer: {
     musicName: "Rhythm Is a Dancer",
@@ -197,6 +208,7 @@ const artistsObj: {
       { name: "Cartman", id: "cartman" },
     ],
     img: "rhythm.jpg",
+    createdInfo: { name: "Saulgoodman", id: "1", img: "1.webp" },
   },
   duality: {
     musicName: "Duality",
@@ -208,6 +220,7 @@ const artistsObj: {
       { name: "Arthur Morgan", id: "arthur_morgan" },
     ],
     img: "duality.jpg",
+    createdInfo: { name: "Saulgoodman", id: "1", img: "1.webp" },
   },
 };
 
@@ -243,7 +256,18 @@ const VoxPlayer = (props: Props) => {
     voice,
     loading,
   } = useGlobalState();
+  const [anchorEl, setAnchorEl] = useState<{
+    elem: HTMLDivElement;
+    idx: number;
+  } | null>(null);
 
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
+    setAnchorEl({ elem: event.currentTarget, idx: i });
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
   const onSongClick = async (_id: string, endTime: number) => {
     // setLoading(true);
     const _instrUrl = `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/vox_player%2F${_id}%2Fno_vocals.mp3?alt=media`;
@@ -393,7 +417,7 @@ const VoxPlayer = (props: Props) => {
         />
       </Box> */}
       <Stack gap={2} py={2}>
-        {Object.entries(artistsObj).map(([artistKey, artistValue]) => (
+        {Object.entries(artistsObj).map(([artistKey, artistValue], i) => (
           <Box key={artistKey} display="flex" alignItems={"center"} gap={2}>
             <Box display={"flex"} alignItems="center">
               {/* <IconButton onClick={() => (Tone.Transport.seconds -= 10)}>
@@ -438,12 +462,57 @@ const VoxPlayer = (props: Props) => {
                 )}
               </IconButton> */}
             </Box>
-            <img
+            {/* <img
               src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${artistValue.img}?alt=media`}
               alt=""
               width={40}
               style={{ borderRadius: "50%" }}
+            /> */}
+            <Avatar
+              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${
+                i + 1
+              }.webp?alt=media`}
+              onClick={(e) => handleClick(e, i)}
             />
+            <Popover
+              open={!!anchorEl && i === anchorEl.idx}
+              anchorEl={anchorEl?.elem}
+              onClose={handleClose}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+            >
+              <Box p={2}>
+                <Box display={"flex"} gap={2} width="400px">
+                  <Avatar
+                    sizes="10px"
+                    src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${artistValue.createdInfo.id}.webp?alt=media`}
+                  />
+                  <Typography variant="caption">
+                    <Typography
+                      component={"a"}
+                      color="#8973F8"
+                      sx={{ textDecoration: "underline", mr: 1 }}
+                    >
+                      {artistValue.createdInfo.name}
+                    </Typography>
+                    shared "{artistValue.musicName}" on Mon, Mar 25th 2014 with{" "}
+                    <Typography
+                      component={"a"}
+                      color="#8973F8"
+                      sx={{ textDecoration: "underline", mr: 1 }}
+                    >
+                      {artistValue.voices[0].name}
+                    </Typography>
+                  </Typography>
+                </Box>
+              </Box>
+            </Popover>
             <Typography>{artistValue.musicName}</Typography>
             {songId === artistKey && !loading && (
               <Chip

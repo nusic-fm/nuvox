@@ -114,7 +114,7 @@ const NavBar = (props: Props) => {
         <ListItemButton sx={{ mb: 2 }} disabled>
           <SpatialAudioOffIcon color="secondary" />
         </ListItemButton>
-        <ListItemButton sx={{ mb: 2 }} onClick={() => navigate("/player")}>
+        <ListItemButton sx={{ mb: 2 }} onClick={() => navigate("/create")}>
           <LibraryMusicIcon color="secondary" />
         </ListItemButton>
         <ListItemButton
