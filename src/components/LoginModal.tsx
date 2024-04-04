@@ -24,12 +24,15 @@ const LoginModal = (props: Props) => {
   const { address } = useAccount();
   const [handles, setHandles] = useState<{ name: string; id: string }[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showConnect, setShowConnect] = useState(
-    !lensClient.authentication.isAuthenticated
-  );
+  const [showConnect, setShowConnect] = useState(true);
 
   const checkHandlesByAddress = async (_address: string) => {
     setLoading(true);
+    const isAuth = await lensClient.authentication.isAuthenticated();
+    if (isAuth) {
+      setShowConnect(false);
+      return;
+    }
     const allOwnedProfiles = await lensClient.profile.fetchAll({
       where: {
         ownedBy: [_address],
