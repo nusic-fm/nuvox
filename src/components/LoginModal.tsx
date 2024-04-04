@@ -3,17 +3,21 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
   LinearProgress,
   Stack,
+  TextField,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useAccount, useConnect, useSignMessage } from "wagmi";
 import { injected } from "wagmi/connectors";
 import { lensClient } from "../config";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 
 type Props = {};
 
@@ -25,6 +29,9 @@ const LoginModal = (props: Props) => {
   const [handles, setHandles] = useState<{ name: string; id: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [showConnect, setShowConnect] = useState(true);
+  const [newHandleName, setNewHandleName] = useState("");
+  const [showNewHandle, setShowNewHandle] = useState(false);
+  const [newHandleLoading, setNewHandleLoading] = useState(false);
 
   const checkHandlesByAddress = async (_address: string) => {
     setLoading(true);
@@ -46,15 +53,17 @@ const LoginModal = (props: Props) => {
   };
 
   const onCreateNewHandle = async (_address: string) => {
+    setNewHandleLoading(true);
     const profileCreateResult = await lensClient.wallet.createProfileWithHandle(
       {
-        handle: "testlenshandle",
+        handle: newHandleName,
         to: _address,
       }
     );
     if (!isRelaySuccess(profileCreateResult)) {
       console.log(`Something went wrong`, profileCreateResult);
-      alert("Failed");
+      alert("Try a different id");
+      setNewHandleLoading(false);
       return;
     }
     console.log(`Waiting for the transaction to be indexed...`);
@@ -62,6 +71,9 @@ const LoginModal = (props: Props) => {
       forTxId: profileCreateResult.txId,
     });
     checkHandlesByAddress(_address);
+    setShowNewHandle(false);
+    setNewHandleName("");
+    setNewHandleLoading(false);
   };
 
   const onChipSelection = async (_address: string, profileId: string) => {
@@ -111,15 +123,38 @@ const LoginModal = (props: Props) => {
         )}
         {address && (
           <Stack>
-            <Box display={"flex"} gap={2}>
+            <Box display={"flex"} gap={2} p={1} alignItems="center">
               <Typography>Choose your Lens Profile</Typography>
-              <Button
-                size="small"
-                variant="contained"
-                onClick={() => onCreateNewHandle(address)}
-              >
-                Create New
-              </Button>
+              {showNewHandle ? (
+                <TextField
+                  size="small"
+                  label="Handle"
+                  color="secondary"
+                  onChange={(e) => setNewHandleName(e.target.value)}
+                  InputProps={{
+                    endAdornment: (
+                      <IconButton
+                        disabled={newHandleLoading}
+                        onClick={() => onCreateNewHandle(address)}
+                      >
+                        {newHandleLoading ? (
+                          <CircularProgress color="secondary" size={"12px"} />
+                        ) : (
+                          <CheckRoundedIcon />
+                        )}
+                      </IconButton>
+                    ),
+                  }}
+                />
+              ) : (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() => setShowNewHandle(true)}
+                >
+                  Create New
+                </Button>
+              )}
             </Box>
             <Box display={"flex"} gap={2} my={2} flexWrap="wrap">
               {handles.map((handle) => (
