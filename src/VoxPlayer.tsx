@@ -185,7 +185,7 @@ const artistsObj: {
       { name: "Elon Musk", id: "elonmusk" },
     ],
     img: "scream.png",
-    createdInfo: { name: "Saulgoodman", id: "7", img: "7.webp" },
+    createdInfo: { name: "Adam", id: "7", img: "7.webp" },
   },
   still_dre: {
     musicName: "Still D.R.E.",
@@ -208,7 +208,7 @@ const artistsObj: {
       { name: "Cartman", id: "cartman" },
     ],
     img: "rhythm.jpg",
-    createdInfo: { name: "Saulgoodman", id: "1", img: "1.webp" },
+    createdInfo: { name: "CryptoKid", id: "3", img: "1.webp" },
   },
   duality: {
     musicName: "Duality",
@@ -220,7 +220,7 @@ const artistsObj: {
       { name: "Arthur Morgan", id: "arthur_morgan" },
     ],
     img: "duality.jpg",
-    createdInfo: { name: "Saulgoodman", id: "1", img: "1.webp" },
+    createdInfo: { name: "Adam", id: "7", img: "1.webp" },
   },
 };
 
@@ -469,9 +469,7 @@ const VoxPlayer = (props: Props) => {
               style={{ borderRadius: "50%" }}
             /> */}
             <Avatar
-              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${
-                i + 1
-              }.webp?alt=media`}
+              src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${artistValue.createdInfo.id}.webp?alt=media`}
               onClick={(e) => handleClick(e, i)}
             />
             <Popover
