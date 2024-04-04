@@ -50,3 +50,9 @@ export const getObjectURLBlob = async (url: string) => {
   const blob = await response.blob();
   return blob;
 };
+export const timeToSeconds = (time: string) => {
+  const [minutes, seconds] = time.includes(".")
+    ? time.split(".").map(Number)
+    : [0, Number(time)];
+  return minutes * 60 + seconds;
+};

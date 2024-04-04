@@ -1,6 +1,7 @@
 import PlayArrow from "@mui/icons-material/PlayArrow";
 import {
   Avatar,
+  Button,
   Chip,
   CircularProgress,
   Divider,
@@ -26,6 +27,7 @@ import * as Tone from "tone";
 // import Forward10RoundedIcon from "@mui/icons-material/Forward10Rounded";
 import { useSession } from "./hooks/useSession";
 import { useGlobalState } from "./main";
+import { timeToSeconds } from "./helpers/audio";
 
 type Props = {};
 
@@ -104,6 +106,8 @@ const artistsObj: {
     voices: { name: string; id: string }[];
     img: string;
     createdInfo: { name: string; id: string; img: string };
+    sections: { name: string; start: number }[];
+    bpm: number;
   };
 } = {
   bob_marley: {
@@ -116,6 +120,18 @@ const artistsObj: {
     ],
     img: "isthislove.jpg",
     createdInfo: { name: "Saulgoodman", id: "1", img: "1.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.16 },
+      { name: "Intro", start: 0.55 },
+      { name: "Intro", start: 1.11 },
+      { name: "Intro", start: 1.42 },
+      { name: "Intro", start: 2.2 },
+      { name: "Intro", start: 2.37 },
+      { name: "Intro", start: 3.07 },
+      { name: "Intro", start: 3.42 },
+    ],
+    bpm: 122,
   },
   chase: {
     musicName: "Baddadan",
@@ -128,6 +144,19 @@ const artistsObj: {
     ],
     img: "baddadan.jpeg",
     createdInfo: { name: "Heisenberg", id: "2", img: "2.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.22 },
+      { name: "Intro", start: 0.42 },
+      { name: "Intro", start: 1.04 },
+      { name: "Intro", start: 1.26 },
+      { name: "Intro", start: 1.48 },
+      { name: "Intro", start: 2.11 },
+      { name: "Intro", start: 2.32 },
+      { name: "Intro", start: 2.53 },
+      { name: "Intro", start: 3.16 },
+    ],
+    bpm: 88,
   },
   gangsta: {
     musicName: "Gangsta's Paradise",
@@ -140,6 +169,19 @@ const artistsObj: {
     ],
     img: "gangsta.jpg",
     createdInfo: { name: "Barry Allen", id: "3", img: "3.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.26 },
+      { name: "Intro", start: 1.02 },
+      { name: "Intro", start: 1.26 },
+      { name: "Intro", start: 2.01 },
+      { name: "Intro", start: 2.14 },
+      { name: "Intro", start: 2.38 },
+      { name: "Intro", start: 3.02 },
+      { name: "Intro", start: 3.25 },
+      { name: "Intro", start: 3.5 },
+    ],
+    bpm: 80,
   },
   miley: {
     musicName: "Flowers",
@@ -153,6 +195,22 @@ const artistsObj: {
     ],
     img: "flowers.webp",
     createdInfo: { name: "Lorem Ipsum", id: "4", img: "4.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.07 },
+      { name: "Intro", start: 0.24 },
+      { name: "Intro", start: 0.33 },
+      { name: "Intro", start: 1.01 },
+      { name: "Intro", start: 1.08 },
+      { name: "Intro", start: 1.25 },
+      { name: "Intro", start: 1.34 },
+      { name: "Intro", start: 2.02 },
+      { name: "Intro", start: 2.18 },
+      { name: "Intro", start: 2.27 },
+      { name: "Intro", start: 2.59 },
+      { name: "Intro", start: 3.15 },
+    ],
+    bpm: 118,
   },
   smells_like_teen_spirit: {
     musicName: "Smells Like Teen Spirit",
@@ -164,6 +222,23 @@ const artistsObj: {
     ],
     img: "smells.jpeg",
     createdInfo: { name: "Ghost", id: "5", img: "5.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.18 },
+      { name: "Intro", start: 0.43 },
+      { name: "Intro", start: 0.58 },
+      { name: "Intro", start: 1.22 },
+      { name: "Intro", start: 1.32 },
+      { name: "Intro", start: 1.57 },
+      { name: "Intro", start: 2.12 },
+      { name: "Intro", start: 2.36 },
+      { name: "Intro", start: 2.46 },
+      { name: "Intro", start: 3.02 },
+      { name: "Intro", start: 3.27 },
+      { name: "Intro", start: 3.42 },
+      { name: "Intro", start: 4.06 },
+    ],
+    bpm: 117,
   },
   only_girl_in_the_world: {
     musicName: "Only Girl In The World",
@@ -175,6 +250,17 @@ const artistsObj: {
     ],
     img: "onlygirl.png",
     createdInfo: { name: "Test", id: "6", img: "6.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.31 },
+      { name: "Intro", start: 1.01 },
+      { name: "Intro", start: 1.47 },
+      { name: "Intro", start: 2.17 },
+      { name: "Intro", start: 2.48 },
+      { name: "Intro", start: 3.2 },
+      { name: "Intro", start: 3.55 },
+    ],
+    bpm: 126,
   },
   "scream_&_shout": {
     musicName: "Scream & Shout",
@@ -186,6 +272,25 @@ const artistsObj: {
     ],
     img: "scream.png",
     createdInfo: { name: "Adam", id: "7", img: "7.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.14 },
+      { name: "Intro", start: 0.29 },
+      { name: "Intro", start: 0.43 },
+      { name: "Intro", start: 1.09 },
+      { name: "Intro", start: 1.14 },
+      { name: "Intro", start: 1.27 },
+      { name: "Intro", start: 1.57 },
+      { name: "Intro", start: 2.13 },
+      { name: "Intro", start: 2.27 },
+      { name: "Intro", start: 2.53 },
+      { name: "Intro", start: 2.57 },
+      { name: "Intro", start: 3.11 },
+      { name: "Intro", start: 3.41 },
+      { name: "Intro", start: 4.21 },
+      { name: "Intro", start: 4.26 },
+    ],
+    bpm: 130,
   },
   still_dre: {
     musicName: "Still D.R.E.",
@@ -198,6 +303,17 @@ const artistsObj: {
     ],
     img: "drdre.jpeg",
     createdInfo: { name: "Saulgoodman", id: "8", img: "8.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.2 },
+      { name: "Intro", start: 1.01 },
+      { name: "Intro", start: 1.22 },
+      { name: "Intro", start: 2.03 },
+      { name: "Intro", start: 2.24 },
+      { name: "Intro", start: 3.04 },
+      { name: "Intro", start: 3.37 },
+    ],
+    bpm: 93,
   },
   rhythm_is_a_dancer: {
     musicName: "Rhythm Is a Dancer",
@@ -209,6 +325,21 @@ const artistsObj: {
     ],
     img: "rhythm.jpg",
     createdInfo: { name: "CryptoKid", id: "3", img: "1.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.31 },
+      { name: "Intro", start: 0.46 },
+      { name: "Intro", start: 1.02 },
+      { name: "Intro", start: 1.17 },
+      { name: "Intro", start: 1.33 },
+      { name: "Intro", start: 1.49 },
+      { name: "Intro", start: 2.04 },
+      { name: "Intro", start: 2.35 },
+      { name: "Intro", start: 2.5 },
+      { name: "Intro", start: 3.06 },
+      { name: "Intro", start: 3.21 },
+    ],
+    bpm: 124,
   },
   duality: {
     musicName: "Duality",
@@ -221,6 +352,18 @@ const artistsObj: {
     ],
     img: "duality.jpg",
     createdInfo: { name: "Adam", id: "7", img: "1.webp" },
+    sections: [
+      { name: "Intro", start: 0 },
+      { name: "Intro", start: 0.31 },
+      { name: "Intro", start: 0.57 },
+      { name: "Intro", start: 1.11 },
+      { name: "Intro", start: 1.28 },
+      { name: "Intro", start: 1.47 },
+      { name: "Intro", start: 2.17 },
+      { name: "Intro", start: 2.47 },
+      { name: "Intro", start: 3.22 },
+    ],
+    bpm: 144,
   },
 };
 
@@ -286,6 +429,7 @@ const VoxPlayer = (props: Props) => {
       fromStart: true,
       voices: artistsObj[_id].voices,
       songId: _id,
+      bpm: artistsObj[_id].bpm,
     });
     // }
     setStartLog({
@@ -315,6 +459,7 @@ const VoxPlayer = (props: Props) => {
       voices: artistsObj[songId].voices,
       songId,
       voiceId: _voiceId,
+      bpm: artistsObj[songId].bpm,
     });
     // }
     pushLog(Math.round(Tone.Transport.seconds));
@@ -511,34 +656,65 @@ const VoxPlayer = (props: Props) => {
                 </Box>
               </Box>
             </Popover>
-            <Typography>{artistValue.musicName}</Typography>
-            {songId === artistKey && !loading && (
-              <Chip
-                disabled={voiceLoading}
-                label={artistValue.artist}
-                variant={voice === "vocals" || !voice ? "outlined" : "filled"}
-                clickable
-                onClick={() => {
-                  onVoiceChange("vocals", artistValue.artist);
-                  // setVoice("vocals");
-                }}
-              />
-            )}
-            {songId === artistKey &&
-              !loading &&
-              artistValue.voices.map((v, i) => (
-                <Chip
-                  disabled={voiceLoading}
-                  key={v.name}
-                  label={v.name}
-                  variant={voice === v.id ? "outlined" : "filled"}
-                  clickable
-                  onClick={() => {
-                    onVoiceChange(v.id, v.name);
-                    //   setVoice(v.id);
-                  }}
-                />
-              ))}
+            <Stack gap={1}>
+              <Box display={"flex"} alignItems="center" gap={2}>
+                <Typography>{artistValue.musicName}</Typography>
+                {songId === artistKey && (
+                  <Chip
+                    disabled={loading || voiceLoading}
+                    label={artistValue.artist}
+                    variant={
+                      voice === "vocals" || !voice ? "outlined" : "filled"
+                    }
+                    clickable
+                    onClick={() => {
+                      onVoiceChange("vocals", artistValue.artist);
+                      // setVoice("vocals");
+                    }}
+                  />
+                )}
+                {songId === artistKey &&
+                  artistValue.voices.map((v, i) => (
+                    <Chip
+                      disabled={loading || voiceLoading}
+                      key={v.name}
+                      label={v.name}
+                      variant={voice === v.id ? "outlined" : "filled"}
+                      clickable
+                      onClick={() => {
+                        onVoiceChange(v.id, v.name);
+                        //   setVoice(v.id);
+                      }}
+                    />
+                  ))}
+              </Box>
+              {songId === artistKey && (
+                <Box display={"flex"} gap={0.5} alignItems="center">
+                  {artistValue.sections.map((section) => (
+                    <Button
+                      disabled={loading || voiceLoading}
+                      key={section.start}
+                      // p={0.85}
+                      // width={100}
+                      variant="contained"
+                      color="info"
+                      sx={{
+                        width: "100px",
+                        ":hover": {
+                          transform: "scale(1.05)",
+                          transition: "transform 0.2s ease",
+                        },
+                      }}
+                      onClick={() =>
+                        (Tone.Transport.seconds = timeToSeconds(
+                          section.start.toString()
+                        ))
+                      }
+                    />
+                  ))}
+                </Box>
+              )}
+            </Stack>
           </Box>
         ))}
       </Stack>

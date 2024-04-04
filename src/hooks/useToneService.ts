@@ -55,8 +55,10 @@ export const useTonejs = () => {
   const playAudio = async (
     instrUrl: string,
     vocalsUrl: string,
+    bpm: number,
     changeInstr: boolean = false
   ): Promise<void> => {
+    Tone.Transport.bpm.value = bpm;
     if (toneLoadingForSection) {
       scheduledNextTrackBf.current = null;
       setToneLoadingForSection(null);

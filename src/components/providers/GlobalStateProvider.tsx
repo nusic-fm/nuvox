@@ -21,6 +21,7 @@ type MusicState = {
     name: string;
     id: string;
   }[];
+  bpm: number;
 };
 
 type Props = {};
@@ -45,6 +46,7 @@ const GlobalStateProvider = ({ children }: any) => {
     coverVocalsUrl: "",
     fromStart: true,
     voices: [],
+    bpm: 0,
   });
 
   const updateGlobalState = async (newState: MusicState) => {
@@ -60,6 +62,7 @@ const GlobalStateProvider = ({ children }: any) => {
       await playAudio(
         newState.songInstrUrl,
         newState.coverVocalsUrl,
+        newState.bpm,
         newState.fromStart
       );
       setLoading(false);
