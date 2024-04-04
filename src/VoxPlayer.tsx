@@ -689,8 +689,13 @@ const VoxPlayer = (props: Props) => {
                   ))}
               </Box>
               {songId === artistKey && (
-                <Box display={"flex"} gap={0.5} alignItems="center">
-                  {artistValue.sections.map((section) => (
+                <Box
+                  display={"flex"}
+                  gap={0.5}
+                  alignItems="center"
+                  flexWrap={"wrap"}
+                >
+                  {artistValue.sections.map((section, i) => (
                     <Button
                       disabled={loading || voiceLoading}
                       key={section.start}
@@ -699,10 +704,23 @@ const VoxPlayer = (props: Props) => {
                       variant="contained"
                       color="info"
                       sx={{
-                        width: "100px",
+                        minWidth: 0,
+                        width: artistValue.sections[i + 1]
+                          ? `${
+                              (timeToSeconds(
+                                artistValue.sections[i + 1].start.toString()
+                              ) -
+                                timeToSeconds(
+                                  artistValue.sections[i].start.toString()
+                                )) *
+                              3
+                            }px`
+                          : "100px",
                         ":hover": {
-                          transform: "scale(1.05)",
-                          transition: "transform 0.2s ease",
+                          zIndex: 999,
+                          transform: "scale(1.5)",
+                          transition: "transform 0.3s ease",
+                          background: "#8973F8",
                         },
                       }}
                       onClick={() =>
