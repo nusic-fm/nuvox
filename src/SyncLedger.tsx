@@ -482,18 +482,20 @@ const SyncLedger = (props: Props) => {
               Publish
             </LoadingButton>
           </Box>
-          <Typography mt={2}>
-            Tx:{" "}
-            <Typography
-              color={"#8973F8"}
-              component={"a"}
-              href={`https://testnet.bscscan.com/tx/${hash}`}
-              sx={{ textDecoration: "underline" }}
-              target="_blank"
-            >
-              {hash}
+          {hash && (
+            <Typography mt={2}>
+              Tx:{" "}
+              <Typography
+                color={"#8973F8"}
+                component={"a"}
+                href={`https://testnet.bscscan.com/tx/${hash}`}
+                sx={{ textDecoration: "underline" }}
+                target="_blank"
+              >
+                {hash}
+              </Typography>
             </Typography>
-          </Typography>
+          )}
         </Stack>
       ) : (
         role === 0 && (

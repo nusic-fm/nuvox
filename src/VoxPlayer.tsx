@@ -112,6 +112,7 @@ const artistsObj: {
     createdInfo: { name: string; id: string; img: string };
     sections: { name: string; start: number }[];
     bpm: number;
+    views: number;
   };
 } = {
   bob_marley: {
@@ -136,6 +137,7 @@ const artistsObj: {
       { name: "Outro", start: 3.42 },
     ],
     bpm: 122,
+    views: 47,
   },
   chase: {
     musicName: "Baddadan",
@@ -161,6 +163,7 @@ const artistsObj: {
       { name: "Outro", start: 3.16 },
     ],
     bpm: 88,
+    views: 93,
   },
   gangsta: {
     musicName: "Gangsta's Paradise",
@@ -186,6 +189,7 @@ const artistsObj: {
       { name: "outro", start: 3.5 },
     ],
     bpm: 80,
+    views: 105,
   },
   miley: {
     musicName: "Flowers",
@@ -215,6 +219,7 @@ const artistsObj: {
       { name: "outro", start: 3.15 },
     ],
     bpm: 118,
+    views: 32,
   },
   smells_like_teen_spirit: {
     musicName: "Smells Like Teen Spirit",
@@ -243,6 +248,7 @@ const artistsObj: {
       { name: "outro", start: 4.06 },
     ],
     bpm: 117,
+    views: 45,
   },
   only_girl_in_the_world: {
     musicName: "Only Girl In The World",
@@ -265,6 +271,7 @@ const artistsObj: {
       { name: "outro", start: 3.55 },
     ],
     bpm: 126,
+    views: 77,
   },
   "scream_&_shout": {
     musicName: "Scream & Shout",
@@ -295,6 +302,7 @@ const artistsObj: {
       { name: "outro", start: 4.26 },
     ],
     bpm: 130,
+    views: 92,
   },
   still_dre: {
     musicName: "Still D.R.E.",
@@ -318,6 +326,7 @@ const artistsObj: {
       { name: "outro", start: 3.37 },
     ],
     bpm: 93,
+    views: 112,
   },
   rhythm_is_a_dancer: {
     musicName: "Rhythm Is a Dancer",
@@ -344,6 +353,7 @@ const artistsObj: {
       { name: "outro", start: 3.21 },
     ],
     bpm: 124,
+    views: 66,
   },
   duality: {
     musicName: "Duality",
@@ -368,6 +378,7 @@ const artistsObj: {
       { name: "outro", start: 3.22 },
     ],
     bpm: 144,
+    views: 64,
   },
 };
 
@@ -686,7 +697,7 @@ const VoxPlayer = (props: Props) => {
                         <EqualizerRoundedIcon sx={{ fontSize: "18px" }} />
                       </IconButton>
                       <Typography variant="caption">
-                        {Math.round(Math.random() * 100)}
+                        {artistValue.views}
                       </Typography>
                     </Box>
                   </Box>
