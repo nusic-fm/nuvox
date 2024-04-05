@@ -28,6 +28,10 @@ import * as Tone from "tone";
 import { useSession } from "./hooks/useSession";
 import { useGlobalState } from "./main";
 import { timeToSeconds } from "./helpers/audio";
+import FavoriteBorderRoundedIcon from "@mui/icons-material/FavoriteBorderRounded";
+import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
+import RepeatRoundedIcon from "@mui/icons-material/RepeatRounded";
+import EqualizerRoundedIcon from "@mui/icons-material/EqualizerRounded";
 
 type Props = {};
 
@@ -619,7 +623,8 @@ const VoxPlayer = (props: Props) => {
             /> */}
             <Avatar
               src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${artistValue.createdInfo.id}.webp?alt=media`}
-              onClick={(e) => handleClick(e, i)}
+              onMouseEnter={(e) => handleClick(e, i)}
+              // onMouseLeave={handleClose}
             />
             <Popover
               open={!!anchorEl && i === anchorEl.idx}
@@ -633,31 +638,59 @@ const VoxPlayer = (props: Props) => {
                 vertical: "top",
                 horizontal: "left",
               }}
+              disableRestoreFocus
+              // sx={{
+              //   pointerEvents: "none",
+              // }}
             >
-              <Box p={2}>
-                <Box display={"flex"} gap={2} width="400px">
-                  <Avatar
-                    sizes="10px"
-                    src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${artistValue.createdInfo.id}.webp?alt=media`}
-                  />
-                  <Typography variant="caption">
-                    <Typography
-                      component={"a"}
-                      color="#8973F8"
-                      sx={{ textDecoration: "underline", mr: 1 }}
-                    >
-                      {artistValue.createdInfo.name}
+              <Box p={2} onMouseLeave={handleClose}>
+                <Stack gap={2}>
+                  <Box display={"flex"} gap={2} width="400px">
+                    <Avatar
+                      sizes="10px"
+                      src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/lens_profiles%2F${artistValue.createdInfo.id}.webp?alt=media`}
+                    />
+                    <Typography variant="caption">
+                      <Typography
+                        component={"a"}
+                        color="#8973F8"
+                        sx={{ textDecoration: "underline", mr: 1 }}
+                      >
+                        {artistValue.createdInfo.name}
+                      </Typography>
+                      shared "{artistValue.musicName}" on Mon, Mar 25th 2014
+                      with{" "}
+                      <Typography
+                        component={"a"}
+                        color="#8973F8"
+                        sx={{ textDecoration: "underline", mr: 1 }}
+                      >
+                        {artistValue.voices[0].name}
+                      </Typography>
                     </Typography>
-                    shared "{artistValue.musicName}" on Mon, Mar 25th 2014 with{" "}
-                    <Typography
-                      component={"a"}
-                      color="#8973F8"
-                      sx={{ textDecoration: "underline", mr: 1 }}
-                    >
-                      {artistValue.voices[0].name}
-                    </Typography>
-                  </Typography>
-                </Box>
+                  </Box>
+                  <Box display={"flex"} gap={2} alignItems="center">
+                    <IconButton size="small">
+                      <FavoriteBorderRoundedIcon sx={{ fontSize: "18px" }} />
+                    </IconButton>
+                    <IconButton size="small">
+                      <ChatBubbleOutlineOutlinedIcon
+                        sx={{ fontSize: "18px" }}
+                      />
+                    </IconButton>
+                    <IconButton size="small">
+                      <RepeatRoundedIcon sx={{ fontSize: "18px" }} />
+                    </IconButton>
+                    <Box display={"flex"} gap={0.5} alignItems="center">
+                      <IconButton size="small">
+                        <EqualizerRoundedIcon sx={{ fontSize: "18px" }} />
+                      </IconButton>
+                      <Typography variant="caption">
+                        {Math.round(Math.random() * 100)}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Stack>
               </Box>
             </Popover>
             <Stack gap={1}>
@@ -757,7 +790,6 @@ const VoxPlayer = (props: Props) => {
                   pointerEvents: "none",
                 }}
                 disableRestoreFocus
-                TransitionProps={{}}
               >
                 <Typography px={2} py={1} textTransform="capitalize">
                   {hoverSectionName}

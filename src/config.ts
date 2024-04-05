@@ -1,5 +1,5 @@
-import { createConfig, http, Config } from "wagmi";
-import { polygonMumbai } from "wagmi/chains";
+import { createConfig, http } from "wagmi";
+import { bscTestnet } from "wagmi/chains";
 import { LensClient, development } from "@lens-protocol/client";
 
 export interface IStorageProvider {
@@ -29,9 +29,9 @@ export const lensClient = new LensClient({
   storage: new LocalStorageProvider(),
 });
 export const config = (createConfig as any)({
-  chains: [polygonMumbai],
+  chains: [bscTestnet],
   transports: {
-    [polygonMumbai.id]: http(),
+    [bscTestnet.id]: http(),
   },
 });
 

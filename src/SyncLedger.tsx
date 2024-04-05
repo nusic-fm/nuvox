@@ -238,7 +238,7 @@ const SyncLedger = (props: Props) => {
   };
 
   useEffect(() => {
-    if (hash) alert(`Tx Successfull: ${hash}`);
+    if (hash) alert(`Tx Successful`);
   }, [hash]);
 
   useEffect(() => {
@@ -467,7 +467,7 @@ const SyncLedger = (props: Props) => {
                       type: "function",
                     },
                   ],
-                  address: "0x201d0f990554e2d736349b4b16eafcbd7dd8e9e0",
+                  address: import.meta.env.VITE_AI_COVER_CONTRACT,
                   functionName: "updateSplit",
                   args: [
                     [address, address],
@@ -482,6 +482,18 @@ const SyncLedger = (props: Props) => {
               Publish
             </LoadingButton>
           </Box>
+          <Typography mt={2}>
+            Tx:{" "}
+            <Typography
+              color={"#8973F8"}
+              component={"a"}
+              href={`https://testnet.bscscan.com/tx/${hash}`}
+              sx={{ textDecoration: "underline" }}
+              target="_blank"
+            >
+              {hash}
+            </Typography>
+          </Typography>
         </Stack>
       ) : (
         role === 0 && (
