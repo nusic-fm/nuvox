@@ -122,14 +122,14 @@ const artistsObj: {
     createdInfo: { name: "Saulgoodman", id: "1", img: "1.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.16 },
-      { name: "Intro", start: 0.55 },
-      { name: "Intro", start: 1.11 },
-      { name: "Intro", start: 1.42 },
-      { name: "Intro", start: 2.2 },
-      { name: "Intro", start: 2.37 },
-      { name: "Intro", start: 3.07 },
-      { name: "Intro", start: 3.42 },
+      { name: "Verse", start: 0.16 },
+      { name: "Chorus", start: 0.55 },
+      { name: "Bridge", start: 1.11 },
+      { name: "Verse", start: 1.42 },
+      { name: "Chorus", start: 2.2 },
+      { name: "Bridge", start: 2.37 },
+      { name: "Verse", start: 3.07 },
+      { name: "Outro", start: 3.42 },
     ],
     bpm: 122,
   },
@@ -146,15 +146,15 @@ const artistsObj: {
     createdInfo: { name: "Heisenberg", id: "2", img: "2.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.22 },
-      { name: "Intro", start: 0.42 },
-      { name: "Intro", start: 1.04 },
-      { name: "Intro", start: 1.26 },
-      { name: "Intro", start: 1.48 },
-      { name: "Intro", start: 2.11 },
-      { name: "Intro", start: 2.32 },
-      { name: "Intro", start: 2.53 },
-      { name: "Intro", start: 3.16 },
+      { name: "Verse", start: 0.22 },
+      { name: "Hook", start: 0.42 },
+      { name: "Verse", start: 1.04 },
+      { name: "Hook", start: 1.26 },
+      { name: "Verse", start: 1.48 },
+      { name: "Bridge", start: 2.11 },
+      { name: "Hook", start: 2.32 },
+      { name: "Drop", start: 2.53 },
+      { name: "Outro", start: 3.16 },
     ],
     bpm: 88,
   },
@@ -171,15 +171,15 @@ const artistsObj: {
     createdInfo: { name: "Barry Allen", id: "3", img: "3.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.26 },
-      { name: "Intro", start: 1.02 },
-      { name: "Intro", start: 1.26 },
-      { name: "Intro", start: 2.01 },
-      { name: "Intro", start: 2.14 },
-      { name: "Intro", start: 2.38 },
-      { name: "Intro", start: 3.02 },
-      { name: "Intro", start: 3.25 },
-      { name: "Intro", start: 3.5 },
+      { name: "Verse", start: 0.26 },
+      { name: "Chorus", start: 1.02 },
+      { name: "Verse", start: 1.26 },
+      { name: "hook", start: 2.01 },
+      { name: "chorus", start: 2.14 },
+      { name: "verse", start: 2.38 },
+      { name: "chorus", start: 3.02 },
+      { name: "hook", start: 3.25 },
+      { name: "outro", start: 3.5 },
     ],
     bpm: 80,
   },
@@ -197,18 +197,18 @@ const artistsObj: {
     createdInfo: { name: "Lorem Ipsum", id: "4", img: "4.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.07 },
-      { name: "Intro", start: 0.24 },
-      { name: "Intro", start: 0.33 },
-      { name: "Intro", start: 1.01 },
-      { name: "Intro", start: 1.08 },
-      { name: "Intro", start: 1.25 },
-      { name: "Intro", start: 1.34 },
-      { name: "Intro", start: 2.02 },
-      { name: "Intro", start: 2.18 },
-      { name: "Intro", start: 2.27 },
-      { name: "Intro", start: 2.59 },
-      { name: "Intro", start: 3.15 },
+      { name: "verse", start: 0.07 },
+      { name: "pre-chorus", start: 0.24 },
+      { name: "chorus", start: 0.33 },
+      { name: "post-chorus", start: 1.01 },
+      { name: "verse", start: 1.08 },
+      { name: "pre-chorus", start: 1.25 },
+      { name: "chorus", start: 1.34 },
+      { name: "post-chorus", start: 2.02 },
+      { name: "pre-chorus", start: 2.18 },
+      { name: "chorus", start: 2.27 },
+      { name: "post-chorus", start: 2.59 },
+      { name: "outro", start: 3.15 },
     ],
     bpm: 118,
   },
@@ -224,19 +224,19 @@ const artistsObj: {
     createdInfo: { name: "Ghost", id: "5", img: "5.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.18 },
-      { name: "Intro", start: 0.43 },
-      { name: "Intro", start: 0.58 },
-      { name: "Intro", start: 1.22 },
-      { name: "Intro", start: 1.32 },
-      { name: "Intro", start: 1.57 },
-      { name: "Intro", start: 2.12 },
-      { name: "Intro", start: 2.36 },
-      { name: "Intro", start: 2.46 },
-      { name: "Intro", start: 3.02 },
-      { name: "Intro", start: 3.27 },
-      { name: "Intro", start: 3.42 },
-      { name: "Intro", start: 4.06 },
+      { name: "verse", start: 0.18 },
+      { name: "pre-chorus", start: 0.43 },
+      { name: "chorus", start: 0.58 },
+      { name: "post-chorus", start: 1.22 },
+      { name: "verse", start: 1.32 },
+      { name: "pre-chorus", start: 1.57 },
+      { name: "chorus", start: 2.12 },
+      { name: "post-chorus", start: 2.36 },
+      { name: "bridge", start: 2.46 },
+      { name: "verse", start: 3.02 },
+      { name: "pre-chorus", start: 3.27 },
+      { name: "chorus", start: 3.42 },
+      { name: "outro", start: 4.06 },
     ],
     bpm: 117,
   },
@@ -252,13 +252,13 @@ const artistsObj: {
     createdInfo: { name: "Test", id: "6", img: "6.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.31 },
-      { name: "Intro", start: 1.01 },
-      { name: "Intro", start: 1.47 },
-      { name: "Intro", start: 2.17 },
-      { name: "Intro", start: 2.48 },
-      { name: "Intro", start: 3.2 },
-      { name: "Intro", start: 3.55 },
+      { name: "verse", start: 0.31 },
+      { name: "chorus", start: 1.01 },
+      { name: "verse", start: 1.47 },
+      { name: "chorus", start: 2.17 },
+      { name: "bridge", start: 2.48 },
+      { name: "chorus", start: 3.2 },
+      { name: "outro", start: 3.55 },
     ],
     bpm: 126,
   },
@@ -274,21 +274,21 @@ const artistsObj: {
     createdInfo: { name: "Adam", id: "7", img: "7.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.14 },
-      { name: "Intro", start: 0.29 },
-      { name: "Intro", start: 0.43 },
-      { name: "Intro", start: 1.09 },
-      { name: "Intro", start: 1.14 },
-      { name: "Intro", start: 1.27 },
-      { name: "Intro", start: 1.57 },
-      { name: "Intro", start: 2.13 },
-      { name: "Intro", start: 2.27 },
-      { name: "Intro", start: 2.53 },
-      { name: "Intro", start: 2.57 },
-      { name: "Intro", start: 3.11 },
-      { name: "Intro", start: 3.41 },
-      { name: "Intro", start: 4.21 },
-      { name: "Intro", start: 4.26 },
+      { name: "refrain", start: 0.14 },
+      { name: "pre-chorus", start: 0.29 },
+      { name: "chorus", start: 0.43 },
+      { name: "post-chorus", start: 1.09 },
+      { name: "drop", start: 1.14 },
+      { name: "verse", start: 1.27 },
+      { name: "refrain", start: 1.57 },
+      { name: "pre-chorus", start: 2.13 },
+      { name: "chorus", start: 2.27 },
+      { name: "post-chorus", start: 2.53 },
+      { name: "drop", start: 2.57 },
+      { name: "bridge", start: 3.11 },
+      { name: "chorus", start: 3.41 },
+      { name: "post-chorus", start: 4.21 },
+      { name: "outro", start: 4.26 },
     ],
     bpm: 130,
   },
@@ -305,13 +305,13 @@ const artistsObj: {
     createdInfo: { name: "Saulgoodman", id: "8", img: "8.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.2 },
-      { name: "Intro", start: 1.01 },
-      { name: "Intro", start: 1.22 },
-      { name: "Intro", start: 2.03 },
-      { name: "Intro", start: 2.24 },
-      { name: "Intro", start: 3.04 },
-      { name: "Intro", start: 3.37 },
+      { name: "verse", start: 0.2 },
+      { name: "chorus", start: 1.01 },
+      { name: "verse", start: 1.22 },
+      { name: "chorus", start: 2.03 },
+      { name: "verse", start: 2.24 },
+      { name: "chorus", start: 3.04 },
+      { name: "outro", start: 3.37 },
     ],
     bpm: 93,
   },
@@ -327,17 +327,17 @@ const artistsObj: {
     createdInfo: { name: "CryptoKid", id: "3", img: "1.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.31 },
-      { name: "Intro", start: 0.46 },
-      { name: "Intro", start: 1.02 },
-      { name: "Intro", start: 1.17 },
-      { name: "Intro", start: 1.33 },
-      { name: "Intro", start: 1.49 },
-      { name: "Intro", start: 2.04 },
-      { name: "Intro", start: 2.35 },
-      { name: "Intro", start: 2.5 },
-      { name: "Intro", start: 3.06 },
-      { name: "Intro", start: 3.21 },
+      { name: "chorus", start: 0.31 },
+      { name: "post-chorus", start: 0.46 },
+      { name: "chorus", start: 1.02 },
+      { name: "post-chorus", start: 1.17 },
+      { name: "chorus", start: 1.33 },
+      { name: "bridge", start: 1.49 },
+      { name: "verse", start: 2.04 },
+      { name: "chorus", start: 2.35 },
+      { name: "post-chorus", start: 2.5 },
+      { name: "bridge", start: 3.06 },
+      { name: "outro", start: 3.21 },
     ],
     bpm: 124,
   },
@@ -354,14 +354,14 @@ const artistsObj: {
     createdInfo: { name: "Adam", id: "7", img: "1.webp" },
     sections: [
       { name: "Intro", start: 0 },
-      { name: "Intro", start: 0.31 },
-      { name: "Intro", start: 0.57 },
-      { name: "Intro", start: 1.11 },
-      { name: "Intro", start: 1.28 },
-      { name: "Intro", start: 1.47 },
-      { name: "Intro", start: 2.17 },
-      { name: "Intro", start: 2.47 },
-      { name: "Intro", start: 3.22 },
+      { name: "verse", start: 0.31 },
+      { name: "verse", start: 0.57 },
+      { name: "chorus", start: 1.11 },
+      { name: "verse", start: 1.28 },
+      { name: "chorus", start: 1.47 },
+      { name: "bridge", start: 2.17 },
+      { name: "chorus", start: 2.47 },
+      { name: "outro", start: 3.22 },
     ],
     bpm: 144,
   },
@@ -403,6 +403,10 @@ const VoxPlayer = (props: Props) => {
     elem: HTMLDivElement;
     idx: number;
   } | null>(null);
+  const [sectionPopover, setSectionPopover] = useState<HTMLElement | null>(
+    null
+  );
+  const [hoverSectionName, setHoverSectionName] = useState("null");
 
   const handleClick = (event: React.MouseEvent<HTMLDivElement>, i: number) => {
     setAnchorEl({ elem: event.currentTarget, idx: i });
@@ -716,11 +720,11 @@ const VoxPlayer = (props: Props) => {
                               3
                             }px`
                           : "100px",
+                        transition: "transform 0.3s ease",
                         ":hover": {
                           zIndex: 999,
                           transform: "scale(1.5)",
-                          transition: "transform 0.3s ease",
-                          background: "#8973F8",
+                          background: "#563FC8",
                         },
                       }}
                       onClick={() =>
@@ -728,10 +732,37 @@ const VoxPlayer = (props: Props) => {
                           section.start.toString()
                         ))
                       }
+                      onMouseEnter={(e) => {
+                        setSectionPopover(e.currentTarget);
+                        setHoverSectionName(section.name);
+                      }}
+                      onMouseLeave={() => {
+                        setSectionPopover(null);
+                      }}
                     />
                   ))}
                 </Box>
               )}
+              <Popover
+                open={!!sectionPopover}
+                anchorEl={sectionPopover}
+                onClose={() => setSectionPopover(null)}
+                onMouseLeave={() => setSectionPopover(null)}
+                anchorOrigin={{ vertical: 35, horizontal: "center" }}
+                transformOrigin={{
+                  vertical: 85,
+                  horizontal: "center",
+                }}
+                sx={{
+                  pointerEvents: "none",
+                }}
+                disableRestoreFocus
+                TransitionProps={{}}
+              >
+                <Typography px={2} py={1} textTransform="capitalize">
+                  {hoverSectionName}
+                </Typography>
+              </Popover>
             </Stack>
           </Box>
         ))}
