@@ -8,11 +8,13 @@ import {
   FormControl,
   InputLabel,
   IconButton,
-  Button,
+  InputAdornment,
 } from "@mui/material";
 import { Stack } from "@mui/system";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
+import { useAccount, useWriteContract } from "wagmi";
+import { LoadingButton } from "@mui/lab";
 
 type Props = {};
 
@@ -217,6 +219,12 @@ const SyncLedger = (props: Props) => {
   const [subRole, setSubRole] = useState(-1);
   const [availableSongs, setAvailableSongs] = useState<ISONG[]>([]);
   const [name, setName] = useState("");
+  const [ascapWriter, setAscapWriter] = useState<number>();
+  const [ascapPublishers, setAscapPublishers] = useState<number>();
+  const [bmiWriter, setBmiWriter] = useState<number>();
+  const [bmiPublisher, setBmiPublisher] = useState<number>();
+  const { data: hash, error, writeContract, isPending } = useWriteContract();
+  const { address } = useAccount();
 
   const onNameChange = (e: any) => {
     if ("ascap" === e.target.value.toLowerCase()) {
@@ -228,6 +236,14 @@ const SyncLedger = (props: Props) => {
       setAvailableSongs([]);
     }
   };
+
+  useEffect(() => {
+    if (hash) alert(`Tx Successfull: ${hash}`);
+  }, [hash]);
+
+  useEffect(() => {
+    if (error) alert(`Error: ${error.message}`);
+  }, [error]);
 
   return (
     <Stack spacing={4} px={"5%"}>
@@ -311,48 +327,160 @@ const SyncLedger = (props: Props) => {
               src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${selectedSong.img}?alt=media`}
               alt=""
             />
-            <Box display={"flex"} justifyContent="space-around" gap={4}>
-              <Stack gap={2}>
-                <Typography>ISWC: {selectedSong.iswc}</Typography>
-                <Typography>
-                  Writers: {selectedSong.writers.join(", ")}
-                </Typography>
-                <Box>
-                  {!!selectedSong.splits.writers[0] && (
-                    <Button color="info" variant="outlined">
+            <Box display={"flex"} gap={4}>
+              <Stack
+                gap={2}
+                flexBasis="50%"
+                flexGrow={0}
+                justifyContent="space-between"
+              >
+                <Stack gap={2} flexBasis="50%" flexGrow={0}>
+                  <Typography>ISWC: {selectedSong.iswc}</Typography>
+                  <Typography>
+                    Writers: {selectedSong.writers.join(", ")}
+                  </Typography>
+                </Stack>
+                {!!selectedSong.splits.writers[0] && (
+                  <Box display={"flex"} gap={1} alignItems="center" width={100}>
+                    {/* <Typography color="#8973F8">
                       Ascap: {selectedSong.splits.writers[0]}%
-                    </Button>
-                  )}
-                </Box>
-                <Box>
-                  {selectedSong.splits.writers[1] && (
-                    <Button color="info" variant="outlined">
+                    </Typography> */}
+                    <TextField
+                      label="Ascap"
+                      onChange={(e) => {
+                        setAscapWriter(parseFloat(e.target.value));
+                      }}
+                      type="number"
+                      defaultValue={selectedSong.splits.writers[0]}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">%</InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
+                )}
+                {!!selectedSong.splits.writers[1] && (
+                  <Box display={"flex"} gap={1} alignItems="center" width={100}>
+                    {/* <Typography color="#8973F8">
                       Bmi: {selectedSong.splits.writers[1]}%
-                    </Button>
-                  )}
-                </Box>
+                    </Typography> */}
+                    <TextField
+                      label="Bmi"
+                      onChange={(e) => {
+                        setBmiWriter(parseFloat(e.target.value));
+                      }}
+                      type="number"
+                      defaultValue={selectedSong.splits.writers[1]}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">%</InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
+                )}
               </Stack>
-              <Stack gap={2}>
-                <Typography>Work ID: {selectedSong.workId}</Typography>
-                <Typography>
-                  Publishers: {selectedSong.publishers.join(", ")}
-                </Typography>
-                <Box>
-                  {!!selectedSong.splits.writers[0] && (
-                    <Button color="info" variant="outlined">
+              <Stack
+                gap={2}
+                flexBasis="50%"
+                flexGrow={0}
+                justifyContent="space-between"
+              >
+                <Stack gap={2}>
+                  <Typography>Work ID: {selectedSong.workId}</Typography>
+                  <Typography>
+                    Publishers: {selectedSong.publishers.join(", ")}
+                  </Typography>
+                </Stack>
+
+                {!!selectedSong.splits.publishers[0] && (
+                  <Box display={"flex"} gap={1} alignItems="center" width={100}>
+                    {/* <Typography color="#8973F8">
                       Ascap: {selectedSong.splits.publishers[0]}%
-                    </Button>
-                  )}
-                </Box>
-                <Box>
-                  {selectedSong.splits.writers[1] && (
-                    <Button color="info" variant="outlined">
+                    </Typography> */}
+                    <TextField
+                      label="Ascap"
+                      onChange={(e) => {
+                        setAscapPublishers(parseFloat(e.target.value));
+                      }}
+                      type="number"
+                      defaultValue={selectedSong.splits.publishers[0]}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">%</InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
+                )}
+                {!!selectedSong.splits.publishers[1] && (
+                  <Box display={"flex"} gap={1} alignItems="center" width={100}>
+                    {/* <Typography color="#8973F8">
                       Bmi: {selectedSong.splits.writers[1]}%
-                    </Button>
-                  )}
-                </Box>
+                    </Typography> */}
+                    <TextField
+                      label="Bmi"
+                      onChange={(e) => {
+                        setBmiPublisher(parseFloat(e.target.value));
+                      }}
+                      type="number"
+                      defaultValue={selectedSong.splits.publishers[1]}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">%</InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
+                )}
               </Stack>
             </Box>
+          </Box>
+          <Divider />
+          <Box display={"flex"} justifyContent="center">
+            <LoadingButton
+              loading={isPending}
+              variant="contained"
+              disabled={
+                !(ascapWriter || ascapPublishers || bmiWriter || bmiPublisher)
+              }
+              onClick={() => {
+                (writeContract as any)({
+                  abi: [
+                    {
+                      inputs: [
+                        {
+                          internalType: "address[]",
+                          name: "addressList",
+                          type: "address[]",
+                        },
+                        {
+                          internalType: "uint256[]",
+                          name: "splitList",
+                          type: "uint256[]",
+                        },
+                      ],
+                      name: "updateSplit",
+                      outputs: [],
+                      stateMutability: "nonpayable",
+                      type: "function",
+                    },
+                  ],
+                  address: "0x201d0f990554e2d736349b4b16eafcbd7dd8e9e0",
+                  functionName: "updateSplit",
+                  args: [
+                    [address, address],
+                    [
+                      (ascapWriter || bmiWriter || 1) * 100,
+                      (ascapPublishers || bmiPublisher || 1) * 100,
+                    ],
+                  ],
+                });
+              }}
+            >
+              Publish
+            </LoadingButton>
           </Box>
         </Stack>
       ) : (
