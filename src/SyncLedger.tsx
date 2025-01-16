@@ -22,7 +22,7 @@ import {
   VoiceModelDoc,
 } from "./services/db/voiceModels.service";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
-import { AreaPlot, ChartContainer } from "@mui/x-charts";
+import { ChartContainer, LinePlot } from "@mui/x-charts";
 import { injected } from "wagmi/connectors";
 
 type Props = {};
@@ -520,7 +520,7 @@ const SyncLedger = (props: Props) => {
                                     data: viewsData[selectedVoiceModelIdx],
                                     type: "line",
                                     label: "uv",
-                                    area: true,
+                                    area: false,
                                     stack: "total",
                                   },
                                 ]}
@@ -531,7 +531,7 @@ const SyncLedger = (props: Props) => {
                                   },
                                 ]}
                               >
-                                <AreaPlot />
+                                <LinePlot />
                               </ChartContainer>
                             </Box>
                             <Box width={300} height={180} position={"relative"}>
@@ -568,7 +568,7 @@ const SyncLedger = (props: Props) => {
                                     data: creationsData[selectedVoiceModelIdx],
                                     type: "line",
                                     label: "uv",
-                                    area: true,
+                                    area: false,
                                     stack: "total",
                                   },
                                 ]}
@@ -579,7 +579,7 @@ const SyncLedger = (props: Props) => {
                                   },
                                 ]}
                               >
-                                <AreaPlot />
+                                <LinePlot />
                               </ChartContainer>
                             </Box>
                           </Box>
