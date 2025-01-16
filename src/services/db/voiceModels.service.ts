@@ -21,6 +21,7 @@ export type VoiceModelDoc = {
   slug: string;
   uid: string;
   url: string;
+  totalPlayedMs: number;
 };
 
 const createFirestoreId = (userString: string) => {

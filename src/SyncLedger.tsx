@@ -15,13 +15,15 @@ import {
 import { Stack } from "@mui/system";
 import { useEffect, useState } from "react";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useConnect, useWriteContract } from "wagmi";
 import { LoadingButton } from "@mui/lab";
 import {
   getVoiceModels,
   VoiceModelDoc,
 } from "./services/db/voiceModels.service";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import { AreaPlot, ChartContainer } from "@mui/x-charts";
+import { injected } from "wagmi/connectors";
 
 type Props = {};
 
@@ -220,9 +222,55 @@ type ISONG = {
   splits: { writers: number[]; publishers: number[] };
 };
 
+// Generate random data averaging to 400 for 10 numbers
+const viewsData = [
+  [388, 446, 488, 433, 410, 390, 460, 500, 560, 480], // 4555
+  [320, 375, 420, 380, 355, 345, 400, 435, 485, 415], // 3930
+  [450, 495, 525, 470, 445, 425, 485, 520, 580, 505], // 4900
+  [365, 410, 445, 395, 380, 365, 425, 460, 510, 445], // 4200
+  [405, 465, 505, 450, 425, 405, 475, 515, 575, 495], // 4715
+  [340, 385, 425, 385, 365, 350, 410, 445, 495, 430], // 4030
+  [425, 480, 515, 460, 435, 415, 480, 525, 585, 510], // 4830
+  [355, 400, 435, 390, 375, 360, 420, 455, 505, 440], // 4135
+  [415, 470, 510, 455, 430, 410, 475, 520, 580, 505], // 4770
+  [335, 380, 415, 375, 360, 345, 405, 440, 490, 425], // 3970
+  [445, 500, 535, 480, 455, 435, 495, 540, 600, 525], // 5010
+  [375, 420, 455, 410, 395, 380, 440, 475, 525, 460], // 4335
+  [395, 450, 490, 435, 415, 395, 465, 505, 565, 485], // 4600
+  [350, 395, 430, 385, 370, 355, 415, 450, 500, 435], // 4085
+  [435, 490, 525, 470, 445, 425, 485, 530, 590, 515], // 4910
+  [360, 405, 440, 395, 380, 365, 425, 460, 510, 445], // 4185
+  [410, 465, 500, 445, 420, 400, 470, 515, 575, 490], // 4690
+  [345, 390, 425, 380, 365, 350, 410, 445, 495, 430], // 4035
+  [420, 475, 510, 455, 430, 410, 480, 525, 585, 505], // 4795
+];
+const creationsData = [
+  [188, 246, 288, 233, 210, 190, 260, 300, 360, 182], // 2457
+  [170, 225, 270, 230, 205, 195, 250, 285, 335, 168], // 2333
+  [250, 295, 325, 270, 245, 225, 285, 320, 380, 212], // 2807
+  [165, 210, 245, 195, 180, 165, 225, 260, 310, 156], // 2111
+  [205, 265, 305, 250, 225, 205, 275, 315, 375, 198], // 2618
+  [140, 185, 225, 185, 165, 150, 210, 245, 295, 143], // 1943
+  [225, 280, 315, 260, 235, 215, 280, 325, 385, 227], // 2747
+  [155, 200, 235, 190, 175, 160, 220, 255, 305, 164], // 2059
+  [215, 270, 310, 255, 230, 210, 275, 320, 380, 208], // 2673
+  [135, 180, 215, 175, 160, 145, 205, 240, 290, 138], // 1883
+  [245, 300, 335, 280, 255, 235, 295, 340, 400, 236], // 2921
+  [175, 220, 255, 210, 195, 180, 240, 275, 325, 171], // 2246
+  [195, 250, 290, 235, 215, 195, 265, 305, 365, 192], // 2507
+  [150, 195, 230, 185, 170, 155, 215, 250, 300, 147], // 1997
+  [235, 290, 325, 270, 245, 225, 285, 330, 390, 229], // 2824
+  [160, 205, 240, 195, 180, 165, 225, 260, 310, 159], // 2099
+  [210, 265, 300, 245, 220, 200, 270, 315, 375, 203], // 2603
+  [145, 190, 225, 180, 165, 150, 210, 245, 295, 141], // 1946
+  [220, 275, 310, 255, 230, 210, 280, 325, 385, 216], // 2706
+  [130, 175, 215, 170, 155, 140, 200, 235, 285, 133], // 1838
+];
+
 const SyncLedger = (props: Props) => {
   const [selectedSong, setSelectedSong] = useState<ISONG>();
   const [selectedVoiceModel, setSelectedVoiceModel] = useState<VoiceModelDoc>();
+  const [selectedVoiceModelIdx, setSelectedVoiceModelIdx] = useState<number>(0);
   const [role, setRole] = useState(-1);
   const [subRole, setSubRole] = useState(-1);
   const [availableSongs, setAvailableSongs] = useState<ISONG[]>([]);
@@ -236,6 +284,7 @@ const SyncLedger = (props: Props) => {
   const { data: hash, error, writeContract, isPending } = useWriteContract();
   const { address } = useAccount();
   const [isLoading, setIsLoading] = useState(false);
+  const { connect } = useConnect();
 
   const fetchWeightsModels = async () => {
     if (weightsModels.length > 0) return;
@@ -361,7 +410,10 @@ const SyncLedger = (props: Props) => {
                 <Stack gap={2}>
                   <Box display={"flex"} justifyContent="start">
                     <IconButton
-                      onClick={() => setSelectedVoiceModel(undefined)}
+                      onClick={() => {
+                        setSelectedVoiceModel(undefined);
+                        setSelectedVoiceModelIdx(0);
+                      }}
                     >
                       <ArrowBackRoundedIcon />
                     </IconButton>
@@ -378,19 +430,22 @@ const SyncLedger = (props: Props) => {
                     <CheckCircleRoundedIcon color="info" />
                   </Box>
                   <Box display={"flex"} gap={2}>
-                    <img
-                      width={180}
-                      src={`https://voxaudio.nusic.fm/${encodeURIComponent(
-                        selectedVoiceModel.avatarPath
-                      )}?alt=media`}
-                      alt=""
-                    />
+                    <Box display={"flex"} alignItems="center">
+                      <img
+                        width={180}
+                        src={`https://voxaudio.nusic.fm/${encodeURIComponent(
+                          selectedVoiceModel.avatarPath
+                        )}?alt=media`}
+                        alt=""
+                        style={{ borderRadius: "8px" }}
+                      />
+                    </Box>
                     <Box display={"flex"} gap={4}>
                       <Stack
                         gap={2}
                         flexBasis="45%"
                         flexGrow={0}
-                        justifyContent="space-between"
+                        justifyContent="center"
                         alignItems="center"
                       >
                         <Stack gap={2} flexBasis="50%" flexGrow={0}>
@@ -399,13 +454,22 @@ const SyncLedger = (props: Props) => {
                           </Typography>
                           {/* <Typography>Voice Owner:</Typography> */}
                         </Stack>
-                        <Button variant="contained" sx={{ width: 200 }}>
+                        <Button
+                          variant="contained"
+                          sx={{ width: 200 }}
+                          onClick={() => {
+                            connect({ connector: injected() });
+                          }}
+                        >
                           Claim Royalties
                         </Button>
                         <Button
                           variant="contained"
                           sx={{ width: 200 }}
                           color="error"
+                          onClick={() => {
+                            connect({ connector: injected() });
+                          }}
                         >
                           Dispute
                         </Button>
@@ -419,13 +483,117 @@ const SyncLedger = (props: Props) => {
                       >
                         <Stack gap={2}>
                           <Typography color="gray">
+                            Weights.gg Metrics
+                          </Typography>
+                          <Box display={"flex"} justifyContent="center">
+                            <Box width={300} height={180} position={"relative"}>
+                              <Box
+                                position={"absolute"}
+                                top={0}
+                                left={0}
+                                width={300}
+                                height={180}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  color="gray"
+                                  position={"absolute"}
+                                  top={"20%"}
+                                  left={"50%"}
+                                  sx={{ transform: "translate(-50%, -50%)" }}
+                                >
+                                  Views{" "}
+                                  {(
+                                    viewsData[selectedVoiceModelIdx].reduce(
+                                      (a, b) => a + b,
+                                      0
+                                    ) / 1000
+                                  ).toFixed(2)}
+                                  k
+                                </Typography>
+                              </Box>
+                              <ChartContainer
+                                width={300}
+                                height={180}
+                                series={[
+                                  {
+                                    data: viewsData[selectedVoiceModelIdx],
+                                    type: "line",
+                                    label: "uv",
+                                    area: true,
+                                    stack: "total",
+                                  },
+                                ]}
+                                xAxis={[
+                                  {
+                                    scaleType: "point",
+                                    data: viewsData[selectedVoiceModelIdx],
+                                  },
+                                ]}
+                              >
+                                <AreaPlot />
+                              </ChartContainer>
+                            </Box>
+                            <Box width={300} height={180} position={"relative"}>
+                              <Box
+                                position={"absolute"}
+                                top={0}
+                                left={0}
+                                width={300}
+                                height={180}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  color="gray"
+                                  position={"absolute"}
+                                  top={"20%"}
+                                  left={"50%"}
+                                  sx={{ transform: "translate(-50%, -50%)" }}
+                                >
+                                  Creations{" "}
+                                  {(
+                                    creationsData[selectedVoiceModelIdx].reduce(
+                                      (a, b) => a + b,
+                                      0
+                                    ) / 1000
+                                  ).toFixed(2)}
+                                  k
+                                </Typography>
+                              </Box>
+                              <ChartContainer
+                                width={300}
+                                height={180}
+                                series={[
+                                  {
+                                    data: creationsData[selectedVoiceModelIdx],
+                                    type: "line",
+                                    label: "uv",
+                                    area: true,
+                                    stack: "total",
+                                  },
+                                ]}
+                                xAxis={[
+                                  {
+                                    scaleType: "point",
+                                    data: creationsData[selectedVoiceModelIdx],
+                                  },
+                                ]}
+                              >
+                                <AreaPlot />
+                              </ChartContainer>
+                            </Box>
+                          </Box>
+                        </Stack>
+                        <Stack gap={2}>
+                          <Typography color="gray">
                             Tune Dash Metrics
                           </Typography>
                           <Typography
                             variant="h6"
                             sx={{ whiteSpace: "nowrap" }}
                           >
-                            892,000ms 892 $NUSIC
+                            {selectedVoiceModel.totalPlayedMs}ms{" "}
+                            {selectedVoiceModel.totalPlayedMs / 1000} $NUSIC
                           </Typography>
                         </Stack>
                       </Stack>
@@ -435,7 +603,12 @@ const SyncLedger = (props: Props) => {
               ) : (
                 weightsModels.map((model, i) => (
                   <Stack key={model.name} alignItems="center">
-                    <IconButton onClick={() => setSelectedVoiceModel(model)}>
+                    <IconButton
+                      onClick={() => {
+                        setSelectedVoiceModel(model);
+                        setSelectedVoiceModelIdx(i);
+                      }}
+                    >
                       <img
                         width={180}
                         src={`https://voxaudio.nusic.fm/${encodeURIComponent(

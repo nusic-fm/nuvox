@@ -19,7 +19,7 @@ const WithNavbar = ({ children }: Props) => {
             <img src="/nusic_purple.png" width={155} alt="" />
           </Box>
           <Typography variant="body2" textAlign={"center"}>
-            Streaming On Steroids
+            Monetize Modified Music
           </Typography>
         </Box>
         {children}
