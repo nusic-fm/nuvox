@@ -9,12 +9,19 @@ import {
   InputLabel,
   IconButton,
   InputAdornment,
+  LinearProgress,
+  Button,
 } from "@mui/material";
 import { Stack } from "@mui/system";
 import { useEffect, useState } from "react";
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import { useAccount, useWriteContract } from "wagmi";
 import { LoadingButton } from "@mui/lab";
+import {
+  getVoiceModels,
+  VoiceModelDoc,
+} from "./services/db/voiceModels.service";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 
 type Props = {};
 
@@ -215,9 +222,12 @@ type ISONG = {
 
 const SyncLedger = (props: Props) => {
   const [selectedSong, setSelectedSong] = useState<ISONG>();
+  const [selectedVoiceModel, setSelectedVoiceModel] = useState<VoiceModelDoc>();
   const [role, setRole] = useState(-1);
   const [subRole, setSubRole] = useState(-1);
   const [availableSongs, setAvailableSongs] = useState<ISONG[]>([]);
+  const [weightsModels, setWeightsModels] = useState<VoiceModelDoc[]>([]);
+  const [otherVoiceModels, setOtherVoiceModels] = useState<VoiceModelDoc[]>([]);
   const [name, setName] = useState("");
   const [ascapWriter, setAscapWriter] = useState<number>();
   const [ascapPublishers, setAscapPublishers] = useState<number>();
@@ -225,6 +235,15 @@ const SyncLedger = (props: Props) => {
   const [bmiPublisher, setBmiPublisher] = useState<number>();
   const { data: hash, error, writeContract, isPending } = useWriteContract();
   const { address } = useAccount();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchWeightsModels = async () => {
+    if (weightsModels.length > 0) return;
+    setIsLoading(true);
+    const res = await getVoiceModels();
+    setWeightsModels(res);
+    setIsLoading(false);
+  };
 
   const onNameChange = (e: any) => {
     if ("ascap" === e.target.value.toLowerCase()) {
@@ -245,6 +264,13 @@ const SyncLedger = (props: Props) => {
     if (error) alert(`Error: ${error.message}`);
   }, [error]);
 
+  useEffect(() => {
+    if (role === 1 && subRole === 0) fetchWeightsModels();
+  }, [role, subRole]);
+
+  // https://api.demo.kamu.dev/nusic/demo-models/tail?limit=10 - Others
+  //
+
   return (
     <Stack spacing={4} px={"5%"}>
       <Typography variant="h4">Sync Ledger</Typography>
@@ -253,7 +279,7 @@ const SyncLedger = (props: Props) => {
         <Box display={"flex"} gap={2}>
           <Box width={200}>
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">Role</InputLabel>
+              <InputLabel>Role</InputLabel>
               <Select
                 label="Role"
                 value={role}
@@ -267,27 +293,36 @@ const SyncLedger = (props: Props) => {
               </Select>
             </FormControl>
           </Box>
-          {role === 0 && (
+          {(role === 0 || role === 1) && (
             <Box width={200}>
               <FormControl fullWidth>
-                <InputLabel id="demo-simple-select-label">Sub Role</InputLabel>
+                <InputLabel>Sub Role</InputLabel>
                 <Select
                   label="Sub Role"
                   fullWidth
-                  defaultValue={0}
                   size="small"
+                  value={subRole}
+                  onChange={(e) => {
+                    setSubRole(e.target.value as number);
+                  }}
                 >
-                  <MenuItem value={0}>PRO</MenuItem>
-                  <MenuItem value={1}>Artist</MenuItem>
-                  <MenuItem value={2} disabled>
-                    Composer
-                  </MenuItem>
-                  <MenuItem value={3} disabled>
-                    Songwriter
-                  </MenuItem>
-                  <MenuItem value={4} disabled>
-                    Record Label
-                  </MenuItem>
+                  {(role === 0
+                    ? [
+                        { name: "PRO", disabled: false },
+                        { name: "Artist", disabled: false },
+                        { name: "Composer", disabled: true },
+                        { name: "Songwriter", disabled: true },
+                        { name: "Record Label", disabled: true },
+                      ]
+                    : [
+                        { name: "Weights.gg", disabled: false },
+                        { name: "Other", disabled: false },
+                      ]
+                  ).map((r, i) => (
+                    <MenuItem value={i} disabled={r.disabled}>
+                      {r.name}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Box>
@@ -300,6 +335,7 @@ const SyncLedger = (props: Props) => {
               fullWidth
               size="small"
               onChange={onNameChange}
+              placeholder="ascap or bmi"
             ></TextField>
           </Box>
         )}
@@ -307,6 +343,123 @@ const SyncLedger = (props: Props) => {
       {role === 1 && (
         <Stack>
           <Typography pl={1}>Available Voice Models</Typography>
+          {weightsModels.length === 0 &&
+            otherVoiceModels.length === 0 &&
+            !isLoading && (
+              <Typography variant="caption" color="gray" px={1} mt={2}>
+                --- No Voice Models found ---
+              </Typography>
+            )}
+          {isLoading && (
+            <Box width={"100%"}>
+              <LinearProgress />
+            </Box>
+          )}
+          {subRole === 0 && (
+            <Box mt={2} display="flex" flexWrap={"wrap"} gap={2}>
+              {!!selectedVoiceModel ? (
+                <Stack gap={2}>
+                  <Box display={"flex"} justifyContent="start">
+                    <IconButton
+                      onClick={() => setSelectedVoiceModel(undefined)}
+                    >
+                      <ArrowBackRoundedIcon />
+                    </IconButton>
+                  </Box>
+                  <Box
+                    display={"flex"}
+                    justifyContent="start"
+                    alignItems="center"
+                    gap={1}
+                  >
+                    <Typography variant="h6">
+                      {selectedVoiceModel.name}
+                    </Typography>
+                    <CheckCircleRoundedIcon color="info" />
+                  </Box>
+                  <Box display={"flex"} gap={2}>
+                    <img
+                      width={180}
+                      src={`https://voxaudio.nusic.fm/${encodeURIComponent(
+                        selectedVoiceModel.avatarPath
+                      )}?alt=media`}
+                      alt=""
+                    />
+                    <Box display={"flex"} gap={4}>
+                      <Stack
+                        gap={2}
+                        flexBasis="45%"
+                        flexGrow={0}
+                        justifyContent="space-between"
+                        alignItems="center"
+                      >
+                        <Stack gap={2} flexBasis="50%" flexGrow={0}>
+                          <Typography sx={{ whiteSpace: "nowrap" }}>
+                            Creator: {selectedVoiceModel.creator}
+                          </Typography>
+                          {/* <Typography>Voice Owner:</Typography> */}
+                        </Stack>
+                        <Button variant="contained" sx={{ width: 200 }}>
+                          Claim Royalties
+                        </Button>
+                        <Button
+                          variant="contained"
+                          sx={{ width: 200 }}
+                          color="error"
+                        >
+                          Dispute
+                        </Button>
+                      </Stack>
+                      <Divider orientation="vertical" flexItem />
+                      <Stack
+                        gap={2}
+                        flexBasis="50%"
+                        flexGrow={0}
+                        justifyContent="space-between"
+                      >
+                        <Stack gap={2}>
+                          <Typography color="gray">
+                            Tune Dash Metrics
+                          </Typography>
+                          <Typography
+                            variant="h6"
+                            sx={{ whiteSpace: "nowrap" }}
+                          >
+                            892,000ms 892 $NUSIC
+                          </Typography>
+                        </Stack>
+                      </Stack>
+                    </Box>
+                  </Box>
+                </Stack>
+              ) : (
+                weightsModels.map((model, i) => (
+                  <Stack key={model.name} alignItems="center">
+                    <IconButton onClick={() => setSelectedVoiceModel(model)}>
+                      <img
+                        width={180}
+                        src={`https://voxaudio.nusic.fm/${encodeURIComponent(
+                          model.avatarPath
+                        )}?alt=media`}
+                        alt=""
+                        style={{ borderRadius: "8px" }}
+                      />
+                    </IconButton>
+                    <Typography>{model.name}</Typography>
+                  </Stack>
+                ))
+              )}
+            </Box>
+          )}
+          {subRole === 1 && (
+            <Box mt={2} display="flex" flexWrap={"wrap"} gap={2}>
+              {otherVoiceModels.length === 0 && !isLoading && (
+                <Typography variant="caption" color="gray" px={1}>
+                  --- No Voice Models found ---
+                </Typography>
+              )}
+            </Box>
+          )}
         </Stack>
       )}
       {role === 2 && (
@@ -502,18 +655,26 @@ const SyncLedger = (props: Props) => {
           <Stack>
             <Typography pl={1}>Available Songs</Typography>
             <Box mt={2} display="flex" flexWrap={"wrap"} gap={2}>
+              {availableSongs.length === 0 && (
+                <Typography variant="caption" color="gray" px={1}>
+                  --- No songs found ---
+                </Typography>
+              )}
               {availableSongs.map((song, i) => (
-                <IconButton
-                  key={song.name}
-                  onClick={() => setSelectedSong(song)}
-                >
-                  <img
-                    width={180}
-                    src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${song.img}?alt=media`}
-                    alt=""
-                    style={{ borderRadius: "8px" }}
-                  />
-                </IconButton>
+                <Stack key={song.name}>
+                  <IconButton
+                    key={song.name}
+                    onClick={() => setSelectedSong(song)}
+                  >
+                    <img
+                      width={180}
+                      src={`https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/syncledger%2F${song.img}?alt=media`}
+                      alt=""
+                      style={{ borderRadius: "8px" }}
+                    />
+                  </IconButton>
+                  <Typography>{song.name}</Typography>
+                </Stack>
               ))}
             </Box>
           </Stack>

@@ -84,7 +84,7 @@ const GlobalStateProvider = ({ children }: any) => {
         loading,
       }}
     >
-      <LoginModal />
+      {/* <LoginModal /> */}
       <Box sx={{ overflowY: "auto" }} height="90vh">
         {children}
       </Box>
